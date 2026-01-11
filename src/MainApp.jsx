@@ -169,7 +169,15 @@ function MainApp() {
   // 其中 patientId 可为数字（病床）或 'current_patient'（家属端单患者档案）
   useEffect(() => {
     // SOCKET_URL 优先来自环境变量（Render/生产部署时可设置），回退到页面所在 origin，再回退到本地开发地址
-    const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : null) || 'http://localhost:4000'
+    // 只在 Vite 构建时读取 import.meta.env，浏览器端不要访问 process.env
+    let SOCKET_URL = '';
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SOCKET_URL) {
+      SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+    } else if (typeof window !== 'undefined' && window.location) {
+      SOCKET_URL = window.location.origin;
+    } else {
+      SOCKET_URL = 'http://localhost:4000';
+    }
     let socket
 
     try {
