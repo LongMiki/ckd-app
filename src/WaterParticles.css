@@ -1,0 +1,49 @@
+/* 水分粒子动画容器 */
+.water-particles {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  pointer-events: none;
+  z-index: 1;
+  /* 防止粒子溢出容器 */
+  overflow: hidden;
+  margin-top: -180px;
+  margin-bottom: 120px;
+}
+
+/* 单个水分粒子 */
+.water-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  /* 高级硬件加速优化 */
+  transform: translateZ(0);
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  /* 添加轻微的3D变换支持 */
+  transform-style: preserve-3d;
+}
+
+/* 为不同大小的粒子添加不同的动画性能 */
+.water-particle:nth-child(odd) {
+  /* 奇数粒子更快的动画 */
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.water-particle:nth-child(even) {
+  /* 偶数粒子更平滑的动画 */
+  animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+/* 添加粒子间的视觉层次 */
+.water-particle:nth-child(3n) {
+  /* 每第三个粒子有不同的混合模式 */
+  mix-blend-mode: screen;
+  opacity: 0.8;
+}
+
+.water-particle:nth-child(4n) {
+  /* 每第四个粒子有柔和的阴影 */
+  filter: drop-shadow(0 2px 4px rgba(73, 189, 216, 0.2));
+}

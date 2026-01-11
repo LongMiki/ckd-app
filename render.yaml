@@ -1,0 +1,24 @@
+# render.yaml - Render 快速部署模板
+# 使用说明：
+# 1) 填写 `repo` 字段为你的 GitHub 仓库（例如: "your-org/your-repo"）。
+# 2) 将该文件提交到仓库的根目录并 push。
+# 3) 在 Render 控制台选择 "Deploy from Render YAML" 或直接在 Dashboard 导入仓库。
+
+services:
+  - type: web
+    name: patient-archive
+    env: node
+    plan: free
+    region: oregon
+    # 请修改为你的代码仓库与分支（Render 可根据该字段自动连接）
+    repo: "LongMiki/miki"
+    branch: "main"
+    buildCommand: "npm run build"
+    startCommand: "npm run start"
+    # 可选：挂载环境变量（如果前端需要连接不同的 socket 地址）
+    envVars:
+      - key: REACT_APP_SOCKET_URL
+        # 如果使用同源 socket，请留空或删除此项
+        value: ""
+    # 指定 Health Check 路径（GET / 返回 200 表示健康）
+    healthCheckPath: "/"

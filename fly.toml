@@ -1,0 +1,27 @@
+[app]
+# replace "miki-app" with your chosen app name or leave for fly to generate
+app = "miki-app"
+primary_region = "iad"
+
+[build]
+  image = "node:18"
+
+[env]
+  NODE_ENV = "production"
+
+[[services]]
+  internal_port = 3000
+  protocol = "tcp"
+  processes = ["app"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 2500
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443

@@ -1,0 +1,1046 @@
+/* 患者详情页 */
+.patient-detail-page {
+  width: 390px;
+  height: 844px;
+  background: #F3F6F8;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 顶部固定栏 Frame 711 */
+.pd-header {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 390px;
+  height: 74px;
+  padding: 12px;
+  padding-bottom: 8px;
+  box-sizing: border-box;
+  z-index: 200;
+  background: rgba(217, 217, 217, 0);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pd-header-content {
+  width: 366px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pd-back-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.pd-back-btn img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pd-header-title {
+  width: 266px;
+  flex-shrink: 0;
+}
+
+.pd-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  color: #121827;
+  height: 29px;
+  margin: 0;
+}
+
+.pd-link-btn {
+  width: 44px;
+  height: 44px;
+  background: #E9F0F9;
+  border: 1px solid white;
+  border-radius: 22px;
+  box-shadow: 2px 2px 5.1px 0px rgba(45, 95, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.pd-link-btn img {
+  width: 32px;
+  height: 32px;
+}
+
+/* 可滚动内容区 */
+.pd-scroll-content {
+  position: absolute;
+  left: 0;
+  top: 74px;
+  width: 390px;
+  height: calc(844px - 74px);
+  padding: 8px 12px 140px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.pd-scroll-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* 患者信息卡片 */
+.pd-patient-card {
+  width: 366px;
+  height: 90px;
+  background: white;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pd-patient-info {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.pd-patient-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.pd-patient-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pd-patient-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-patient-name {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: normal;
+  color: black;
+  height: 29px;
+  margin: 0;
+}
+
+.pd-patient-meta {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pd-patient-meta p {
+  margin: 0;
+}
+
+/* 水分球总览区 */
+.pd-summary {
+  width: 366px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.pd-ring-wrap {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pd-ring-wrap > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pd-ring-wrap .water-ring-chart {
+  z-index: 2;
+}
+
+.pd-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pd-summary-right {
+  width: 213px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.pd-status-pill {
+  width: 70px;
+  height: 20px;
+  border-radius: 999px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pd-status-dot {
+  width: 6px;
+  height: 6px;
+}
+
+.pd-status-text {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: black;
+}
+
+.pd-ai-text {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #383838;
+  height: 35px;
+}
+
+.pd-metrics {
+  width: 213px;
+  display: flex;
+  gap: 5px;
+}
+
+.pd-metric-card {
+  width: 104px;
+  height: 63px;
+  background: #FDFDFF;
+  border-radius: 4px;
+  padding: 4px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pd-metric-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  line-height: normal;
+  color: #606263;
+  height: 12px;
+}
+
+.pd-metric-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  color: #2CAD33;
+  height: 29px;
+}
+
+.pd-metric-sub {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: #606263;
+  height: 12px;
+}
+
+.pd-progress {
+  margin-top: auto;
+}
+
+.pd-progress-track {
+  width: 96px;
+  height: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pd-progress-track--blue {
+  background: #D8E1FF;
+}
+
+.pd-progress-track--purple {
+  background: #EFDBFF;
+}
+
+.pd-progress-fill {
+  height: 6px;
+  border-radius: 4px;
+}
+
+.pd-progress-fill--blue {
+  background: #2D5FFF;
+}
+
+.pd-progress-fill--purple {
+  background: #8848DB;
+}
+
+/* 日志卡片 */
+.pd-timeline-card {
+  width: 366px;
+  background: white;
+  border-radius: 12px;
+  padding: 8px 11px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.pd-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  padding-right: 8px;
+}
+
+.pd-timeline-title h3 {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: normal;
+  color: black;
+  height: 23px;
+  margin: 0;
+}
+
+.pd-timeline-title p {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #595959;
+  height: 17px;
+  margin: 0;
+}
+
+.pd-timeline-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.pd-filter-pills {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pd-filter-pill {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: white;
+  border: 0.2px solid transparent;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  line-height: normal;
+  color: #262626;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pd-filter-pill--active {
+  background: #E9F0F9;
+}
+
+.pd-filter-pill:hover {
+  opacity: 0.8;
+}
+
+.pd-filter-icons {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.pd-filter-icon {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 10px;
+  padding: 4px;
+  box-sizing: border-box;
+  border: 0.2px solid;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.pd-filter-icon--intake {
+  border-color: #2D5FFF;
+  box-shadow: 0px 0px 8px 0px rgba(45, 95, 255, 0.25);
+}
+
+.pd-filter-icon--camera {
+  border-color: #FF832B;
+  box-shadow: 0px 0px 8px 0px rgba(255, 131, 43, 0.25);
+}
+
+.pd-filter-icon--output {
+  border-color: #8848DB;
+  box-shadow: 0px 0px 8px 0px rgba(136, 72, 219, 0.25);
+}
+
+.pd-filter-icon img {
+  width: 12px;
+  height: 12px;
+}
+
+/* 时间线 */
+.pd-timeline {
+  position: relative;
+  padding-top: 7px;
+}
+
+.pd-timeline-line {
+  position: absolute;
+  left: 3px;
+  top: 48px;
+  width: 0;
+  height: 294px;
+}
+
+.pd-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.pd-timeline-body {
+  width: 330px;
+}
+
+.pd-timeline-dot {
+  width: 6px;
+  height: 6px;
+  display: block;
+  margin-top: 2px;
+}
+
+.pd-timeline-row {
+  width: 330px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pd-timeline-row--clickable {
+  cursor: pointer;
+}
+
+.pd-timeline-row--clickable:active {
+  opacity: 0.9;
+}
+
+.pd-timeline-left {
+  width: 127px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-timeline-top {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.pd-timeline-icon {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+.pd-timeline-time {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  color: #595959;
+  line-height: normal;
+}
+
+.pd-timeline-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  color: #181818;
+  line-height: normal;
+  height: 15px;
+}
+
+.pd-timeline-ago {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 4px;
+  color: #595959;
+  line-height: normal;
+  height: 8px;
+}
+
+.pd-timeline-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: normal;
+  width: 73px;
+  text-align: right;
+}
+
+.pd-timeline-value--intake {
+  color: #2D5FFF;
+}
+
+.pd-timeline-value--output {
+  color: #8848DB;
+}
+
+/* 展开详情 */
+.pd-expand-wrap {
+  width: 330px;
+  margin-top: 6px;
+}
+
+.pd-expand-content {
+  width: 330px;
+  height: 78px;
+  border-radius: 8px;
+  background: #E9F0F9;
+  display: flex;
+  gap: 5px;
+  margin-left: 0;
+  margin-top: 6px;
+}
+
+.pd-expand-left {
+  width: 90px;
+  height: 78px;
+  position: relative;
+  border-radius: 4px 0 0 4px;
+  overflow: hidden;
+}
+
+.pd-expand-thumb {
+  width: 90px;
+  height: 78px;
+  overflow: hidden;
+  position: relative;
+}
+
+.pd-expand-thumb img {
+  position: absolute;
+  width: 100%;
+  height: 173.08%;
+  left: 0.48%;
+  top: -56.89%;
+  max-width: none;
+}
+
+.pd-expand-badge {
+  position: absolute;
+  top: 2px;
+  left: 56px;
+  width: 32px;
+  height: 8px;
+  background: #FFA945;
+  border-radius: 2px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 4px;
+  line-height: 8px;
+  text-align: center;
+  color: #121827;
+}
+
+.pd-expand-right {
+  width: 212px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.pd-observe-block {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.pd-observe-line {
+  width: 2px;
+  height: 20px;
+  border-radius: 4px;
+  background: #D9D9D9;
+  flex-shrink: 0;
+}
+
+.pd-observe-text {
+  width: 208px;
+  color: #585858;
+}
+
+.pd-observe-h {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 6px;
+  height: 10px;
+  line-height: normal;
+}
+
+.pd-observe-p {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  height: 10px;
+  line-height: normal;
+}
+
+.pd-risk-block {
+  display: flex;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.pd-risk-line {
+  width: 2px;
+  height: 32px;
+  border-radius: 4px;
+  background: #FA9B2D;
+  flex-shrink: 0;
+}
+
+.pd-risk-text {
+  width: 102px;
+}
+
+.pd-risk-h {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 6px;
+  height: 10px;
+  line-height: normal;
+  color: #FA9B2D;
+}
+
+.pd-risk-p {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  height: 10px;
+  line-height: normal;
+  color: #585858;
+}
+
+.pd-expand-sync {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 4px;
+  height: 8px;
+  line-height: normal;
+  color: #595959;
+}
+
+/* 周统计卡片 */
+.pd-week-card {
+  width: 366px;
+  background: white;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.pd-week-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.pd-week-header h3 {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: normal;
+  color: black;
+  margin: 0;
+}
+
+.pd-week-header p {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: black;
+  margin: 0;
+}
+
+.pd-week-bars {
+  display: flex;
+  gap: 26px;
+  align-items: flex-end;
+}
+
+.pd-week-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.pd-week-bar {
+  width: 24px;
+  background: linear-gradient(180deg, #06B6D4 0%, #3B82F6 50%, #6366F1 100%);
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.pd-week-bar--active {
+  background: linear-gradient(180deg, #2D5FFF 0%, #1E4FEE 100%);
+}
+
+.pd-week-day {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: normal;
+  color: black;
+  text-align: center;
+  height: 17px;
+}
+
+/* 活动与体重体液关联 */
+.pd-activity-card {
+  width: 366px;
+  background: white;
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.pd-activity-card h3 {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: normal;
+  color: black;
+  height: 23px;
+  margin: 0 0 8px 0;
+}
+
+.pd-activity-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pd-activity-item {
+  width: 342px;
+  height: 28px;
+  background: #E9F0F9;
+  border-radius: 8px;
+  padding: 7px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  line-height: normal;
+}
+
+.pd-activity-item span:first-child {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  color: black;
+  width: 105px;
+}
+
+.pd-activity-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  color: #2D5FFF;
+  text-align: right;
+  width: 73px;
+}
+
+/* 底部两栏 */
+.pd-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+/* 尿液指标卡片 */
+.pd-urine-card {
+  width: 164px;
+  background: white;
+  border: 0.5px solid #6E7BE8;
+  border-radius: 12px;
+  box-shadow: 0px 0px 16px 0px rgba(136, 72, 219, 0.25);
+  padding: 8px 12px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pd-urine-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pd-urine-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pd-urine-header h4 {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: normal;
+  color: black;
+  margin: 0;
+}
+
+.pd-urine-unit {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: #595959;
+}
+
+.pd-urine-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: normal;
+  color: #8848DB;
+  text-align: right;
+}
+
+.pd-urine-value--blue {
+  color: #6C62EF;
+}
+
+.pd-urine-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pd-urine-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.pd-urine-track--purple {
+  background: #EFDBFF;
+}
+
+.pd-urine-track--blue {
+  background: #CAC6FF;
+}
+
+.pd-urine-fill {
+  height: 8px;
+  border-radius: 999px;
+}
+
+.pd-urine-fill--purple {
+  background: #8848DB;
+}
+
+.pd-urine-fill--blue {
+  background: #6C62EF;
+}
+
+.pd-urine-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  line-height: normal;
+  color: #96A3B7;
+}
+
+/* 依从性分析卡片 */
+.pd-compliance-card {
+  width: 182px;
+  background: #E9F0F9;
+  border-radius: 12px;
+  padding: 8px 12px 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-compliance-card h4 {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: normal;
+  color: black;
+  height: 23px;
+  margin: 0 0 8px 0;
+}
+
+.pd-radar-chart {
+  width: 158px;
+  height: 143px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 长按删除确认样式 */
+.pd-timeline-item--deleting {
+  background: rgba(244, 56, 89, 0.08);
+  border-radius: 8px;
+}
+
+.pd-delete-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #FFF5F6;
+  border-radius: 8px;
+  margin-top: 8px;
+  border: 1px solid rgba(244, 56, 89, 0.2);
+}
+
+.pd-delete-confirm span {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 12px;
+  color: #F43859;
+}
+
+.pd-delete-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pd-delete-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: none;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pd-delete-btn--cancel {
+  background: #E9F0F9;
+  color: #5E6061;
+}
+
+.pd-delete-btn--cancel:hover {
+  background: #D8E1FF;
+}
+
+.pd-delete-btn--confirm {
+  background: #F43859;
+  color: white;
+}
+
+.pd-delete-btn--confirm:hover {
+  background: #D92D4D;
+}
+
+/* 暂无数据样式 */
+.pd-no-data {
+  color: #9CA3AF;
+  font-size: 14px;
+  padding: 12px 0;
+  text-align: center;
+}
+
+/* 时间线空状态 */
+.pd-timeline-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #9CA3AF;
+}
+
+.pd-empty-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.pd-empty-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+.pd-empty-hint {
+  font-size: 13px;
+  color: #9CA3AF;
+}

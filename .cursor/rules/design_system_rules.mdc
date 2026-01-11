@@ -1,0 +1,311 @@
+# Design System Rules for Patient Archive App
+
+## Overview
+This document provides comprehensive guidelines for integrating Figma designs into the Patient Archive application using the Model Context Protocol (MCP). The app is a Vite + React healthcare management system with a focus on patient water intake monitoring.
+
+## 1. Token Definitions
+
+### Color System
+**Location**: Defined inline within CSS files and component styles
+**Format**: Hex color codes with CSS custom properties for theming
+
+```css
+/* Primary Colors */
+--primary-blue: #49BDD8;      /* Caregiver theme */
+--primary-blue-family: #2D5FFF; /* Family theme */
+--background-light: #F3F6F8;
+
+/* Status Colors */
+--success-green: #10B981;
+--warning-orange: #F59E0B;
+--danger-red: #EF4444;
+--neutral-gray: #5E6061;
+```
+
+**Current Implementation**:
+- Role-based theming: `.family-mode` vs default caregiver colors
+- CSS custom properties not extensively used yet
+- Colors applied directly in component CSS files
+
+### Typography System
+**Font Family**: Noto Sans SC (Chinese-optimized)
+**Weights**: 400 (regular), 500 (medium), 700 (bold)
+**Sizes**: Mobile-first responsive scaling
+
+```css
+/* Typography Scale */
+--text-xs: 10px;    /* Small labels */
+--text-sm: 12px;    /* Body text */
+--text-base: 14px;  /* Default text */
+--text-lg: 16px;    /* Button text */
+--text-xl: 18px;    /* Section headers */
+--text-2xl: 20px;   /* Page titles */
+```
+
+### Spacing System
+**Base Unit**: 4px (0.25rem)
+**Scale**: 4, 8, 12, 16, 20, 24, 32, 40, 48px
+
+### Border Radius
+**Scale**: 4px, 8px, 12px, 16px, 24px, 40px
+
+## 2. Component Library
+
+### Component Architecture
+**Pattern**: Single-file components with paired CSS modules
+**Structure**:
+```
+src/
+├── ComponentName.jsx     # React component
+├── ComponentName.css     # Component styles
+└── assets/              # Component-specific assets
+```
+
+**Example Component Structure**:
+```jsx
+import React from 'react'
+import './ComponentName.css'
+
+function ComponentName({ prop }) {
+  return (
+    <div className="component-name">
+      {/* Component JSX */}
+    </div>
+  )
+}
+
+export default ComponentName
+```
+
+### Current Components
+- **App.jsx**: Main patient registration form
+- **WaterManagement.jsx**: Dashboard with charts and task management
+- **Navigation**: Bottom tab navigation with role-based icons
+
+### Component Patterns
+- **Functional Components**: Modern React with hooks
+- **Props Interface**: Direct prop passing (no TypeScript yet)
+- **State Management**: Local React state + localStorage persistence
+- **Event Handling**: Inline arrow functions
+
+## 3. Frameworks & Libraries
+
+### Core Framework
+- **React**: 18.3.1 with modern hooks and functional components
+- **Vite**: 6.0.5 for fast development and building
+- **Build Tool**: Vite with @vitejs/plugin-react
+
+### Dependencies
+```json
+{
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "sharp": "^0.34.5",           // Image processing (unused)
+  "socket.io-client": "^4.8.3"   // Real-time communication (unused)
+}
+```
+
+### Backend Integration
+- **FastAPI**: Python backend in `txe.py` (currently unintegrated)
+- **Data Flow**: localStorage for client-side persistence
+- **API Pattern**: RESTful endpoints (planned)
+
+## 4. Asset Management
+
+### Current Asset Strategy
+**External Assets**: Figma-generated URLs for images
+```javascript
+// Pattern used in WaterManagement.jsx
+const imgEllipse69 = "https://www.figma.com/api/mcp/asset/e1582a7c-e158-4225-bb89-d4930a9510a9"
+```
+
+**Local Assets**: Organized in `src/assets/` (currently empty)
+```
+src/assets/
+├── icons/     # SVG icons and icon components
+└── images/    # Static images and illustrations
+```
+
+### Asset Optimization
+- **Vite Import**: Use ES6 imports for local assets
+- **Format**: WebP/PNG for images, SVG for icons
+- **Naming**: kebab-case filenames
+
+```jsx
+// Recommended pattern for local assets
+import avatarIcon from '../assets/icons/avatar.svg'
+import chartImage from '../assets/images/water-chart.webp'
+```
+
+## 5. Icon System
+
+### Current Implementation
+**Inline SVGs**: Icons defined directly in JSX components
+**States**: Filled vs outlined variants for active/inactive states
+
+```jsx
+// Pattern from App.jsx
+{selectedRole === 'family' ? (
+  // Active state - filled icon
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"/>
+  </svg>
+) : (
+  // Inactive state - outlined icon
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+)}
+```
+
+### Icon Strategy
+- **Format**: Inline SVG for component icons
+- **Sizing**: 24x24px base with responsive scaling
+- **Color**: `currentColor` for theme inheritance
+- **States**: Visual variants for interaction states
+
+## 6. Styling Approach
+
+### CSS Methodology
+**Pattern**: Component-scoped CSS with BEM-like naming
+**Organization**: One CSS file per component
+**Global Styles**: `src/index.css` for resets and utilities
+
+### CSS Structure
+```css
+/* Component namespace */
+.component-name {
+  /* Base styles */
+}
+
+/* Element modifiers */
+.component-name__element {
+  /* Element styles */
+}
+
+.component-name--modifier {
+  /* Component modifier */
+}
+
+/* State classes */
+.component-name.is-active {
+  /* State styles */
+}
+```
+
+### Responsive Design
+**Viewport**: Fixed 390x844px mobile-first design
+**Strategy**: Component-level responsive adjustments
+**Breakpoints**: Single mobile breakpoint (390px width)
+
+### Theme System
+**Role-based Theming**: CSS class switching
+```css
+/* Base theme */
+.app-container {
+  background: #49BDD8; /* Caregiver blue */
+}
+
+/* Family theme override */
+.app-container.family-mode {
+  background: #2D5FFF; /* Family blue */
+}
+```
+
+## 7. Project Structure
+
+### Directory Organization
+```
+patient-archive/
+├── index.html              # App entry point
+├── package.json            # Dependencies and scripts
+├── vite.config.js          # Build configuration
+├── .traerules             # Figma integration rules
+├── txe.py                 # FastAPI backend (unintegrated)
+└── src/
+    ├── main.jsx           # React app entry
+    ├── index.css          # Global styles
+    ├── App.jsx            # Main registration form
+    ├── App.css            # App component styles
+    ├── WaterManagement.jsx # Dashboard component
+    ├── WaterManagement.css # Dashboard styles
+    └── assets/            # Static assets
+        ├── icons/         # Icon assets
+        └── images/        # Image assets
+```
+
+### File Naming Conventions
+- **Components**: PascalCase (.jsx)
+- **Styles**: PascalCase matching component (.css)
+- **Assets**: kebab-case
+- **Directories**: camelCase
+
+### Code Style
+- **JavaScript**: ES6+ with modern syntax
+- **JSX**: Single quotes, 2-space indentation
+- **CSS**: Nested selectors, descriptive class names
+- **Imports**: Relative paths with file extensions
+
+## Figma Integration Guidelines
+
+### MCP Configuration (.traerules)
+```yaml
+code_generation:
+  styles:
+    type: css-modules
+    extension: .css
+    format: nested
+  components:
+    file_extension: .jsx
+    use_function_components: true
+    use_hooks: true
+  figma:
+    layers:
+      convert_frames_to_components: true
+      convert_groups_to_divs: true
+    styles:
+      convert_fill_to_background: true
+      convert_stroke_to_border: true
+```
+
+### Design Token Mapping
+- **Colors**: Map Figma color styles to CSS custom properties
+- **Typography**: Convert text styles to consistent font specifications
+- **Spacing**: Use 4px base unit for all spacing values
+- **Shadows**: Convert Figma shadows to CSS box-shadow
+
+### Component Generation Rules
+1. **Extract Components**: Convert Figma frames to React components
+2. **Generate CSS**: Create paired CSS files with component-scoped styles
+3. **Handle Assets**: Export images and use appropriate URLs
+4. **Preserve Layout**: Maintain exact positioning and dimensions
+5. **Add Interactivity**: Convert Figma interactions to React event handlers
+
+### Quality Assurance
+- **Visual Fidelity**: Pixel-perfect matching to Figma designs
+- **Responsive Behavior**: Test on 390px viewport
+- **Theme Consistency**: Verify role-based theming works
+- **Performance**: Optimize asset loading and component rendering
+
+## Development Workflow
+
+### Adding New Components
+1. Create component file: `src/NewComponent.jsx`
+2. Create styles file: `src/NewComponent.css`
+3. Import and use in parent component
+4. Add to routing/state management if needed
+
+### Asset Integration
+1. Place assets in appropriate `src/assets/` subdirectory
+2. Use ES6 imports for local assets
+3. Use Figma URLs for design system assets
+4. Optimize images for web delivery
+
+### Theming Updates
+1. Define theme variables in component CSS
+2. Use CSS custom properties for dynamic theming
+3. Test both caregiver and family themes
+4. Ensure accessibility contrast ratios
+
+This design system provides a solid foundation for consistent, maintainable Figma-to-React conversions while preserving the healthcare application's specific requirements and Chinese localization needs.</content>
+<parameter name="filePath">d:\Documents\2025-au\未来终端与服务设计\APP-Studio\.cursor\rules\design_system_rules.mdc

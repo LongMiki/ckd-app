@@ -1,0 +1,869 @@
+/* 水分管理页面内容 - 适配新的主应用结构 */
+.water-management-content {
+  width: 390px;
+  background: #F3F6F8;
+  border-radius: 24px;
+  position: relative;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 隐藏滚动条 */
+.water-management-content::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+/* 顶部固定栏 - 在 390x844px 界面范围内 */
+.wm-top-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 390px;
+  min-height: 74px;
+  height: 74px;
+  background: #F3F6F8;
+  padding: 12px 12px 8px;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.wm-user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 366px;
+  flex: 1;
+}
+
+.wm-user-details {
+  display: flex;
+  flex-direction: column;
+  width: 211px;
+}
+
+.wm-user-name {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.45;
+  color: #121827;
+  margin: 0;
+  min-height: 29px;
+  overflow: visible;
+}
+
+.wm-shift-info {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 1.7;
+  color: #5E6061;
+  margin: 0;
+  min-height: 17px;
+  overflow: visible;
+}
+
+.wm-user-avatar {
+  width: 44px;
+  height: 44px;
+  position: relative;
+}
+
+.wm-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* 内容区域 - 取消内部滚动，交给全局 page-content 滚动 */
+.wm-scrollable-content {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 390px;
+  height: auto;
+  overflow-y: visible;
+  overflow-x: hidden;
+  padding: 16px 0;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.wm-scrollable-content::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+/* 圆环图表区域 */
+.wm-chart-section {
+  margin: 20px 0 16px;
+  position: relative;
+  padding: 0 12px;
+  overflow: hidden;
+}
+
+.wm-chart-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  width: 100%;
+  max-width: 366px;
+  margin: 0 auto;
+}
+
+.wm-decorative-dots-left {
+  position: absolute;
+  left: -20px;
+  top: 20px;
+  width: 100px;
+  height: 130px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.wm-decorative-dots-left img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.wm-main-chart {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+.wm-main-chart img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.wm-chart-labels {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+.wm-label-intake {
+  position: absolute;
+  left: 78px;
+  top: 71px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: right;
+  width: 40px;
+  height: 49px;
+}
+
+.wm-label-output {
+  position: absolute;
+  left: 102px;
+  top: 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  width: 40px;
+  height: 53px;
+}
+
+.wm-label-value-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.00175;
+  height: 40px;
+  width: 100%;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #F7F8F9;
+}
+
+.wm-label-output .wm-label-value-wrapper {
+  height: 44px;
+  line-height: normal;
+}
+
+.wm-label-value-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.00175;
+  color: #F7F8F9;
+  margin: 0;
+  white-space: nowrap;
+  display: block;
+}
+
+.wm-label-value-percent {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.00175;
+  color: #F7F8F9;
+  margin: 0;
+  white-space: nowrap;
+  display: block;
+}
+
+.wm-label-text {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 4px;
+  line-height: normal;
+  font-style: normal;
+  color: #FFFFFF;
+  white-space: nowrap;
+  margin: 0;
+  height: 9px;
+  width: 100%;
+}
+
+.wm-decorative-dots-right {
+  position: absolute;
+  right: -30px;
+  top: 10px;
+  width: 120px;
+  height: 150px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.wm-decorative-dots-right img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 关注提示区域 */
+.wm-attention-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 366px;
+  margin: 0 auto 20px;
+  padding: 0 12px;
+}
+
+.wm-attention-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 258px;
+}
+
+.wm-attention-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.45;
+  color: #46C761;
+  margin: 0;
+  min-height: 29px;
+  overflow: visible;
+}
+
+.wm-attention-desc {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.42;
+  color: #121827;
+  margin: 0;
+  min-height: 17px;
+  overflow: visible;
+  word-wrap: break-word;
+}
+
+/* 水分统计卡片 */
+.wm-water-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 0;
+}
+
+.wm-stat-card {
+  width: 166px;
+  height: 67px;
+  background: #FDFDFF;
+  border-radius: 12px;
+  padding: 0;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.wm-stat-label {
+  position: absolute;
+  left: 5.53px;
+  top: 4px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  line-height: 12px;
+  height: 12px;
+  color: #606263;
+  margin: 0;
+  width: 49.8px;
+  overflow: visible;
+}
+
+.wm-stat-value {
+  position: absolute;
+  left: 5.53px;
+  top: 14px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  height: 29px;
+  color: #2CAD33;
+  margin: 0;
+  width: 100.983px;
+  overflow: visible;
+}
+
+.wm-stat-target {
+  position: absolute;
+  left: 5.53px;
+  top: 39px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: 12px;
+  height: 12px;
+  color: #606263;
+  margin: 0;
+  width: 92.683px;
+  overflow: visible;
+}
+
+/* 进度条 */
+.wm-progress-bar {
+  position: absolute;
+  left: 5.53px;
+  top: 55px;
+  width: 154.933px;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.wm-progress-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.wm-progress-bg.wm-intake-bg {
+  background: #D8E1FF;
+}
+
+.wm-progress-bg.wm-output-bg {
+  background: #EFDBFF;
+}
+
+.wm-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.wm-progress-fill.wm-intake-fill {
+  width: 124.5px;
+  background: #2D5FFF;
+}
+
+.wm-progress-fill.wm-output-fill {
+  width: 124.5px;
+  background: #8848DB;
+}
+
+/* 风险排序 */
+.wm-risk-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 366px;
+  margin: 0 auto 20px;
+  padding: 0 12px;
+}
+
+.wm-section-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.56;
+  color: #000000;
+  margin: 0;
+  min-height: 25px;
+  width: 100%;
+  overflow: visible;
+}
+
+.wm-risk-cards {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.wm-risk-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 90px;
+  min-height: 128px;
+  background: #FDFDFF;
+  border-radius: 12px;
+  padding: 11px 10px;
+  box-sizing: border-box;
+}
+
+.wm-patient-avatar {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 4px;
+}
+
+.wm-patient-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.wm-patient-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.wm-patient-name {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.67;
+  color: #121827;
+  margin: 0;
+  overflow: visible;
+}
+
+.wm-risk-level {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 1.7;
+  margin: 0;
+  overflow: visible;
+}
+
+.wm-risk-level.wm-serious {
+  color: #F43859;
+}
+
+.wm-risk-level.wm-warning {
+  color: #FA8534;
+}
+
+.wm-risk-level.wm-normal {
+  color: #46C761;
+}
+
+/* 今日任务 */
+.wm-tasks-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 366px;
+  background: #FDFDFF;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 0 auto 20px;
+}
+
+.wm-tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wm-task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  user-select: none;
+}
+
+.wm-task-item:hover {
+  opacity: 0.8;
+}
+
+.wm-task-item:active {
+  opacity: 0.6;
+}
+
+.wm-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 0.2px solid #E0E0E0;
+  border-radius: 4px;
+  background: #F3F6F8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.wm-checkbox.wm-checked {
+  background: linear-gradient(135deg, #46C761 0%, #2CAD33 100%);
+  border: none;
+}
+
+.wm-checkbox.wm-checked img {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+}
+
+.wm-task-text {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.67;
+  color: #000000;
+  min-height: 20px;
+  width: 171px;
+  overflow: visible;
+  word-wrap: break-word;
+}
+
+.wm-task-text.wm-completed {
+  color: #5E6061;
+  text-decoration: line-through;
+}
+
+/* 病区趋势 */
+.wm-trend-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  max-width: 366px;
+  background: #FDFDFF;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 0 auto 20px;
+}
+
+.wm-trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.wm-trend-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: -2px;
+  width: 197px;
+}
+
+.wm-trend-subtitle {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: 17px;
+  color: #5E6061;
+  margin: 0;
+}
+
+.wm-trend-arrow {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wm-trend-content {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.wm-trend-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 62px;
+}
+
+.wm-trend-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1.25;
+  color: #000000;
+  text-align: center;
+  margin: 0;
+  overflow: visible;
+}
+
+.wm-trend-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: 1.7;
+  color: #5E6061;
+  margin: 0;
+  overflow: visible;
+}
+
+.wm-week-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.wm-day-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 28px;
+}
+
+.wm-day-chart {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 4px;
+}
+
+.wm-day-chart img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.wm-day-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: 17px;
+  color: #5E6061;
+  text-align: center;
+  margin: 0;
+}
+
+/* 关键指标对比 */
+.wm-metrics-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 366px;
+  background: #FDFDFF;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 0 auto 20px;
+}
+
+.wm-metrics-cards {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.wm-metric-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #E9F0F9;
+  border-radius: 12px;
+  padding: 8px 16px;
+  min-height: 64px;
+  flex: 1;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.wm-metric-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #121827;
+  margin: 0;
+  overflow: visible;
+}
+
+.wm-metric-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.3;
+  color: #2CAD33;
+  margin: 0;
+  overflow: visible;
+}
+
+.wm-metric-desc {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: 1.5;
+  color: #5E6061;
+  margin: 0;
+  overflow: visible;
+}
+
+/* 底部导航栏 - 在 390x844px 界面范围内 */
+.wm-bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 390px;
+  height: 93px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 34px 8px;
+  box-sizing: border-box;
+}
+
+.wm-nav-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.wm-nav-background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wm-nav-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 27px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  /* 恢复按钮的交互能力 */
+  pointer-events: auto;
+}
+
+.wm-nav-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 60px;
+  height: 64px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 15px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  /* 确保按钮可以点击 */
+  pointer-events: auto;
+}
+
+.wm-nav-btn.wm-active {
+  background: #E9F0F9;
+  border-radius: 24px;
+}
+
+.wm-nav-btn svg {
+  width: 24px;
+  height: 24px;
+  transition: all 0.3s ease;
+}
+
+.wm-nav-btn span {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: 1.5;
+  text-align: center;
+  color: #7B9BFF;
+  transition: color 0.3s ease;
+  min-height: 12px;
+  overflow: visible;
+}
+
+.wm-nav-btn.wm-active span {
+  color: #375DFB;
+}
+
+.wm-nav-btn:hover {
+  opacity: 0.8;
+}
+
+/* 响应式调整 - 统一APP样式 */
+@media (max-width: 390px) {
+  .water-management-container {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .wm-top-header,
+  .wm-bottom-nav,
+  .wm-nav-background {
+    width: 100vw;
+  }
+  
+  .wm-scrollable-content {
+    width: 100vw;
+    height: calc(100vh - 74px - 93px);
+  }
+}

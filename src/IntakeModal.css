@@ -1,0 +1,248 @@
+/* 遮罩层 */
+.im-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+/* 弹窗容器 */
+.im-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+}
+
+.im-content {
+  width: 307px;
+  background: white;
+  border: 0.5px solid #7B9BFF;
+  border-radius: 12px;
+  padding: 8px 11px;
+  box-sizing: border-box;
+}
+
+.im-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: normal;
+  color: #121827;
+  height: 29px;
+  margin: 0 0 8px 0;
+}
+
+/* 表单 */
+.im-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.im-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.im-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.im-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: normal;
+  color: #121827;
+  height: 17px;
+}
+
+/* 下拉选择框 */
+.im-select {
+  height: 24px;
+  border: 0.5px solid #7B9BFF;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.im-select-text {
+  font-family: 'Manrope', 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: #5E6061;
+}
+
+.im-select-icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* 患者下拉列表 */
+.im-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  background: white;
+  border: 0.5px solid #7B9BFF;
+  border-radius: 8px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.im-dropdown-item {
+  padding: 8px 6px;
+  font-family: 'Manrope', 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: #5E6061;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.im-dropdown-item:hover {
+  background: #F0F4FF;
+}
+
+.im-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+.im-drinks {
+  display: flex;
+  gap: 15px;
+}
+
+.im-drink-btn {
+  width: 60px;
+  height: 35px;
+  border-radius: 8px;
+  border: 0.5px solid #7B9BFF;
+  background: white;
+  padding: 3px 4px;
+  cursor: pointer;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: #7B9BFF;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.im-drink-btn--active {
+  background: #2D5FFF;
+  color: white;
+  border-color: #2D5FFF;
+}
+
+.im-drink-btn:hover {
+  opacity: 0.8;
+}
+
+/* 文本域 */
+.im-textarea {
+  height: 50px;
+  border: 0.5px solid #7B9BFF;
+  border-radius: 8px;
+  padding: 3px 4px;
+  font-family: 'Manrope', 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #5E6061;
+  resize: none;
+  outline: none;
+}
+
+.im-textarea::placeholder {
+  color: #5E6061;
+}
+
+/* 操作按钮 */
+.im-actions {
+  display: flex;
+  gap: 24px;
+}
+
+.im-btn {
+  height: 28px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: normal;
+  text-align: center;
+  color: white;
+  transition: opacity 0.2s;
+}
+
+.im-btn:hover {
+  opacity: 0.9;
+}
+
+.im-btn--confirm {
+  width: 140px;
+  background: #2D5FFF;
+  padding: 4px 25px;
+}
+
+.im-btn--cancel {
+  width: 120px;
+  background: #7B9BFF;
+  padding: 4px 27px;
+}
+
+/* 时间选择器样式 */
+.im-select--time {
+  position: relative;
+}
+
+.im-time-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.im-select--time .im-select-text {
+  z-index: 1;
+}
+
+/* 下拉选中状态 */
+.im-dropdown-item--active {
+  background: #E9F0F9;
+  color: #2D5FFF;
+  font-weight: 500;
+}

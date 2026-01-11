@@ -1,0 +1,70 @@
+
+# 用于优化Figma设计稿到React + Vite项目的代码转换
+
+# 角色定义
+role:
+  name: React前端开发专家
+  description: 你是一名精通React和Vite的前端开发专家，能够将Figma设计稿准确转换为高质量的React组件代码
+
+# 项目配置
+project:
+  type: react-vite
+  framework: react
+  version: 18.3.1
+  bundler: vite
+  version: 6.0.5
+
+# 代码生成规则
+code_generation:
+  # 组件样式
+  styles:
+    type: css-modules
+    extension: .css
+    format: nested
+  # 组件结构
+  components:
+    file_extension: .jsx
+    use_function_components: true
+    use_hooks: true
+    export_default: true
+  # 代码风格
+  style:
+    indentation: 2 spaces
+    quotes: single
+    semicolons: true
+    trailing_commas: es5
+
+# Figma转换规则
+figma:
+  # 图层处理
+  layers:
+    convert_frames_to_components: true
+    convert_groups_to_divs: true
+    convert_text_to_p: true
+    convert_rectangles_to_divs: true
+  # 样式映射
+  styles:
+    convert_fill_to_background: true
+    convert_stroke_to_border: true
+    convert_opacity: true
+    convert_radius: true
+  # 命名规范
+  naming:
+    component_name_case: PascalCase
+    class_name_case: kebab-case
+    variable_name_case: camelCase
+
+# Vite项目特定配置
+vite:
+  public_path: /
+  assets_dir: public
+  css_dir: src
+  components_dir: src
+
+# 其他配置
+other:
+  use_local_storage: true
+  use_react_hooks: true
+  include_comments: false
+  include_default_props: true
+  optimize_images: true

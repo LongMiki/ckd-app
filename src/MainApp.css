@@ -1,0 +1,78 @@
+/* 主应用容器样式 */
+.main-app-container {
+  width: 390px;
+  height: 844px;
+  background-color: #F3F6F8;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 页面内容区域 */
+.page-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 390px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 140px;
+  box-sizing: border-box;
+  z-index: 10;
+  /* 取消滚动条 */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.page-content.page-content--no-scroll {
+  overflow: hidden;
+}
+
+.page-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* 临时页面样式 */
+.placeholder-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.placeholder-page h2 {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: #121827;
+  margin: 0 0 16px 0;
+}
+
+.placeholder-page p {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #5E6061;
+  margin: 0;
+}
+
+/* 响应式调整 */
+@media (max-width: 390px) {
+  .main-app-container {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .page-content {
+    width: 100vw;
+    height: 100vh;
+    padding-bottom: 140px;
+  }
+}

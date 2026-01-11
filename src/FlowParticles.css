@@ -1,0 +1,193 @@
+/* 流动粒子容器 */
+.flow-particles {
+  position: absolute;
+  width: 120px;
+  height: 180px;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+
+/* 左侧粒子容器 - 摄入方向 */
+.flow-particles-left {
+  left: -30px;
+  top: 10px;
+}
+
+/* 右侧粒子容器 - 排出方向 */
+.flow-particles-right {
+  right: -30px;
+  top: 10px;
+}
+
+/* 单个粒子基础样式 */
+.flow-particle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(0.5px);
+  will-change: transform, opacity;
+}
+
+/* 粒子层次 - 不同深度有不同模糊度 */
+.flow-particle.layer-0 {
+  filter: blur(0.5px);
+}
+
+.flow-particle.layer-1 {
+  filter: blur(1px);
+}
+
+.flow-particle.layer-2 {
+  filter: blur(1.5px);
+}
+
+/* 摄入粒子 - 青蓝色系 (与内环颜色呼应) */
+.particle-intake {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(6, 182, 212, 0.9) 0%,
+    rgba(59, 130, 246, 0.7) 50%,
+    rgba(99, 102, 241, 0.4) 100%
+  );
+  box-shadow: 
+    0 0 6px rgba(6, 182, 212, 0.6),
+    0 0 12px rgba(59, 130, 246, 0.3);
+}
+
+/* 排出粒子 - 紫粉色系 (与外环颜色呼应) */
+.particle-output {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(168, 85, 247, 0.9) 0%,
+    rgba(236, 72, 153, 0.7) 50%,
+    rgba(244, 114, 182, 0.4) 100%
+  );
+  box-shadow: 
+    0 0 6px rgba(168, 85, 247, 0.6),
+    0 0 12px rgba(236, 72, 153, 0.3);
+}
+
+/* 装饰性光晕 */
+.flow-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.4;
+}
+
+/* 摄入光晕 - 青蓝色 */
+.glow-intake {
+  width: 60px;
+  height: 80px;
+  top: 35px;
+  left: 20px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(6, 182, 212, 0.5) 0%,
+    rgba(59, 130, 246, 0.3) 40%,
+    transparent 70%
+  );
+}
+
+/* 排出光晕 - 紫粉色 */
+.glow-output {
+  width: 60px;
+  height: 80px;
+  top: 30px;
+  right: 20px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(168, 85, 247, 0.5) 0%,
+    rgba(236, 72, 153, 0.3) 40%,
+    transparent 70%
+  );
+}
+
+/* 添加一些额外的装饰粒子轨迹 */
+.flow-particles::before,
+.flow-particles::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.2;
+}
+
+.flow-particles-left::before {
+  width: 4px;
+  height: 4px;
+  background: #06B6D4;
+  top: 40%;
+  left: 30%;
+  animation: float-left 4s ease-in-out infinite;
+}
+
+.flow-particles-left::after {
+  width: 6px;
+  height: 6px;
+  background: #3B82F6;
+  top: 55%;
+  left: 50%;
+  animation: float-left 5s ease-in-out infinite 1s;
+}
+
+.flow-particles-right::before {
+  width: 4px;
+  height: 4px;
+  background: #A855F7;
+  top: 45%;
+  right: 30%;
+  animation: float-right 4s ease-in-out infinite;
+}
+
+.flow-particles-right::after {
+  width: 6px;
+  height: 6px;
+  background: #EC4899;
+  top: 60%;
+  right: 50%;
+  animation: float-right 5s ease-in-out infinite 1.5s;
+}
+
+/* 左侧浮动动画 */
+@keyframes float-left {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(40px, -10px) scale(1.2);
+    opacity: 0.6;
+  }
+  80% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(80px, 5px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* 右侧浮动动画 */
+@keyframes float-right {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(30px, 8px) scale(0.9);
+    opacity: 0.5;
+  }
+  80% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translate(60px, -5px) scale(0.5);
+    opacity: 0;
+  }
+}

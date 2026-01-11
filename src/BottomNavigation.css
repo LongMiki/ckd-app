@@ -1,0 +1,138 @@
+/* 统一底部导航栏样式 - 根据Figma设计 node-id 1531:472 */
+.bottom-nav {
+  --nav-bleed: 12px;
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% + (2 * var(--nav-bleed)));
+  height: 93px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 16px 0 16px;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+/* 导航栏背景 - 使用Figma Subtract SVG（自带圆角/阴影） */
+.nav-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: none;
+  width: 100%;
+  height: 93px;
+  pointer-events: none;
+}
+
+.nav-background img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* 按钮容器 */
+.nav-buttons {
+  display: flex;
+  gap: 27px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  width: 390px;
+  padding: 0 34px;
+  box-sizing: border-box;
+}
+
+/* 单个导航按钮 */
+.nav-btn {
+  background-color: transparent;
+  border: none;
+  width: 60px;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 15px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* 激活状态 - 根据Figma设计 */
+.nav-btn.nav-active {
+  background-color: #E9F0F9;
+}
+
+/* 图标容器 */
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.nav-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 患者和设备图标稍大 */
+.nav-btn:nth-child(2) .nav-icon,
+.nav-btn:nth-child(3) .nav-icon {
+  width: 28px;
+  height: 28px;
+}
+
+/* 文字样式 */
+.nav-btn span {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  text-align: center;
+  white-space: nowrap;
+  color: #7B9BFF;
+  transition: color 0.2s ease;
+}
+
+.nav-btn.nav-active span {
+  color: #375DFB;
+}
+
+/* 取消滚动条 */
+.bottom-nav,
+.nav-buttons,
+.nav-btn {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.bottom-nav::-webkit-scrollbar,
+.nav-buttons::-webkit-scrollbar,
+.nav-btn::-webkit-scrollbar {
+  display: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 390px) {
+  .bottom-nav,
+  .nav-background {
+    width: 100vw;
+  }
+  
+  .bottom-nav,
+  .nav-background {
+    left: 0;
+    transform: none;
+  }
+}

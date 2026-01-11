@@ -1,0 +1,78 @@
+我在做一个「CKD 水分管理系统」的前端项目，目前已经有一些静态界面和零散的代码，但想系统地梳理数据模型和前端 Mock 接口，让后续接后端更顺利。
+重要：现在主要先做前端和 Mock，但 Mock 的结构要尽量符合未来后端接口的设计。
+1. 业务数据说明（请你先理解）
+我的数据分两大类：单个患者的数据 和 护工端的聚合数据。
+1.1 单个患者的数据（Patient）
+前端建档时会填写并发送给后端：
+患者名称（patientName）
+年龄（age）
+体重（weight）
+是否是 CKD 患者（isCKD）
+如果是 CKD，是 GFR 几期（gfrStage，例：1–5）
+硬件有三类设备采集数据：
+饮水机：单次出水量（单次摄入量）
+拍照模块：拍摄时刻的图片数据（食物）
+尿壶：尿量、尿的颜色、尿比重、尿渗透压
+后端（将来）会对这些数据做「日级聚合」，给前端呈现的患者视图包括：
+基本信息：患者名称、年龄、体重、GFR 分期（无 / 1–5 期）
+阈值相关：
+摄入量上限：正常人 2400ml、GFR1-2 为 2200ml、GFR3 为 2000ml、GFR4-5 为 1500ml
+出量上限：正常人 2000ml、GFR1-2 为 1800ml、GFR3 为 1600ml、GFR4-5 为 1000ml
+当日统计：
+出量（总计）
+尿渗透压
+尿比重
+排尿次数
+AI 输出两块：
+AI 食物识别（基于拍照模块的图片）
+每次图片 → 输出：
+食物种类（foodType）
+估计水分（estimatedWater）
+置信度（confidence）
+是否有风险、什么成分会上升对患者不利（hasRisk, riskFactors）
+AI 患者简略报告（基于患者状态 + 入量 + 出量）
+输出：
+整体状态描述（overall）
+摄入如何（intakeText）
+排出如何（outputText）
+患者状态有三种：Normal（正常）、Risk（风险）、Emergency（紧急）。
+判定的具体规则依赖一张阈值表（Excel），表中的指标都可以从上面提到的数据推出来（如 daily_intake、net_intake、urine_sg 等），这里不用你重新设计判定逻辑，只要把 status 视为最终字段即可。
+第二步的「患者侧数据输出」包括：
+时间线日志（timeline）：
+通用字段：
+类型：入量 / 出量（type: intake/output）
+数值：摄入量或排尿量（value）
+来源：饮水机 / 拍照 / 尿壶（source）
+时间：数据产生时间（time）
+距今时间：相对当前的描述（timeAgo，如「3 分钟前」「2 小时前」）
+如果来源是拍照，还需要：
+食物种类（foodType）
+估计水分（estimatedWater）
+置信度（confidence）
+是否有风险、什么成分不利（hasRisk, riskFactors）
+图片（imageUrl 或 imageId）
+如果来源是尿壶，还需要：
+尿液颜色（urineColor）
+当日总摄入量（totalIntake）
+总入量 / 总出量的占比（inOutRatio）
+患者的状态（status: Normal/Risk/Emergency）
+AI 患者简略报告（aiSummary：整体状态，摄入如何，排出如何）
+1.2 护工端数据（Caregiver）
+护工端在管理 12 名患者的场景下，有几类特有数据：
+需要关注的人数：
+被判定为 Risk 和 Emergency 的患者人数（needAttentionCount）
+护工整体状态（也是 Normal / Risk / Emergency）：
+判定规则（以 12 人为例）：
+Normal：紧急人数 = 0 且 风险人数 ≤ 2
+Risk：紧急人数 = 1 或 风险人数 ≥ 3
+Emergency：紧急人数 ≥ 2 或 风险人数 ≥ 5
+AI 整体情况描述：
+整体状况（overall）
+摄入量异常人数：偏多 / 偏少各几人
+排出量异常人数：偏多 / 偏少各几人
+管理患者的总入量及其上限、总出量及其上限，以及入量和出量的占比：
+totalIntake, totalIntakeLimit
+totalOutput, totalOutputLimit
+inOutRatio
+平均净入量（avgNetIntake）
+另外，护工端可以看到每个患者的全部数据（患者端能看的都能看），只是多了一层「汇总和排序」。

@@ -1,0 +1,41 @@
+.risk-double-ring {
+  display: inline-block;
+}
+
+.risk-double-ring svg {
+  display: block;
+}
+
+/* 背景轨道 */
+.risk-ring-track {
+  fill: none;
+}
+
+.risk-ring-track--outer {
+  stroke: #E2E7F3;
+}
+
+.risk-ring-track--inner {
+  stroke: #F0E8F7;
+}
+
+/* 数值环 */
+.risk-ring-value {
+  fill: none;
+  transition: stroke-dashoffset 0.25s ease-out;
+}
+
+/* 蓝色外环 - 摄入 */
+.risk-ring-value--outer {
+  stroke: #3B82F6;
+}
+
+/* 紫色内环 - 排出 */
+.risk-ring-value--inner {
+  stroke: #8B5CF6;
+}
+
+/* 中心状态圆点 */
+.risk-ring-center {
+  fill: #FF8A3B;
+}

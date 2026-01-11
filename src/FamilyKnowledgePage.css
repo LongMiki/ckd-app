@@ -1,0 +1,220 @@
+/* 家属端-知识页（1530:954） */
+.family-knowledge-page {
+  width: 390px;
+  height: 844px;
+  background: #F3F6F8;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 顶部 Frame711 固定 */
+.fkp-header {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 390px;
+  height: 74px;
+  padding: 12px 12px 8px;
+  box-sizing: border-box;
+  z-index: 200;
+  background: rgba(217, 217, 217, 0);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fkp-header-content {
+  width: 366px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fkp-title-group {
+  width: 211px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.fkp-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  color: #121827;
+  height: 29px;
+}
+
+.fkp-subtitle {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #5E6061;
+  height: 17px;
+}
+
+.fkp-avatar {
+  width: 44px;
+  height: 44px;
+  position: relative;
+}
+
+.fkp-avatar img {
+  width: 54.2px;
+  height: 54.2px;
+  position: absolute;
+  left: -3.1px;
+  top: -3.1px;
+  border-radius: 999px;
+  display: block;
+}
+
+/* 内容区滚动（除header外） */
+.fkp-scroll {
+  position: absolute;
+  left: 0;
+  top: 74px;
+  width: 390px;
+  height: calc(844px - 74px);
+  padding: 8px 12px 140px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.fkp-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.fkp-card {
+  width: 366px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.fkp-card--intro {
+  padding: 8px 12px;
+}
+
+.fkp-card--lesson {
+  padding: 8px 12px;
+}
+
+.fkp-card-inner {
+  width: 100%;
+}
+
+.fkp-card-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: normal;
+  color: #000000;
+  margin-bottom: 8px;
+}
+
+.fkp-block {
+  margin-bottom: 8px;
+}
+
+.fkp-q {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #2D5FFF;
+  margin-bottom: 4px;
+}
+
+.fkp-a {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: #121827;
+}
+
+.fkp-list {
+  margin: 0;
+  padding-left: 12px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: #121827;
+}
+
+.fkp-pill {
+  height: 32px;
+  border-radius: 8px;
+  padding: 4px 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  border: 0.5px solid transparent;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #121827;
+}
+
+.fkp-pill--good {
+  background: #E5FCEF;
+  border-color: #2CAD33;
+}
+
+.fkp-pill--bad {
+  background: #FDEBE6;
+  border-color: red;
+}
+
+.fkp-pill--alert {
+  background: #FDEBE6;
+  border-color: red;
+}
+
+.fkp-mark {
+  display: inline-flex;
+  width: 12px;
+  justify-content: center;
+}
+
+.fkp-mark--good {
+  color: #2CAD33;
+}
+
+.fkp-mark--bad {
+  color: red;
+}
+
+@media (max-width: 390px) {
+  .family-knowledge-page {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .fkp-header {
+    width: 100vw;
+  }
+
+  .fkp-scroll {
+    width: 100vw;
+    height: calc(100vh - 74px);
+  }
+}

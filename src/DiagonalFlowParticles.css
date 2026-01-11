@@ -1,0 +1,57 @@
+/* 对角线流动粒子容器 */
+.diagonal-flow-particles {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 0;
+}
+
+/* 单个粒子基础样式 */
+.diagonal-particle {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity, left, top;
+}
+
+/* 粒子层次 - 不同深度有不同模糊度 */
+.diagonal-particle.layer-0 {
+  filter: blur(0.5px);
+}
+
+.diagonal-particle.layer-1 {
+  filter: blur(1px);
+}
+
+.diagonal-particle.layer-2 {
+  filter: blur(1.5px);
+}
+
+/* 摄入粒子 - 青蓝色系（左下→球心） */
+.diagonal-particle--intake {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(6, 182, 212, 0.9) 0%,
+    rgba(59, 130, 246, 0.7) 50%,
+    rgba(99, 102, 241, 0.4) 100%
+  );
+  box-shadow: 
+    0 0 6px rgba(6, 182, 212, 0.6),
+    0 0 12px rgba(59, 130, 246, 0.3);
+}
+
+/* 排出粒子 - 紫粉色系（球心→右上） */
+.diagonal-particle--output {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(168, 85, 247, 0.9) 0%,
+    rgba(236, 72, 153, 0.7) 50%,
+    rgba(244, 114, 182, 0.4) 100%
+  );
+  box-shadow: 
+    0 0 6px rgba(168, 85, 247, 0.6),
+    0 0 12px rgba(236, 72, 153, 0.3);
+}

@@ -1,0 +1,511 @@
+/* 家属端-首页（1530:717） */
+
+.family-home-page {
+  width: 390px;
+  height: 844px;
+  background: #F3F6F8;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 顶部 Frame711 固定 */
+.fh-header {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 390px;
+  height: 74px;
+  padding: 12px 12px 8px;
+  box-sizing: border-box;
+  z-index: 200;
+  background: rgba(217, 217, 217, 0);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fh-header-content {
+  width: 366px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fh-title-group {
+  width: 211px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.fh-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  color: #121827;
+  height: 29px;
+}
+
+.fh-subtitle {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #5E6061;
+  height: 17px;
+}
+
+.fh-avatar {
+  width: 44px;
+  height: 44px;
+  position: relative;
+}
+
+.fh-avatar img {
+  width: 54.2px;
+  height: 54.2px;
+  position: absolute;
+  left: -3.1px;
+  top: -3.1px;
+  border-radius: 999px;
+  display: block;
+}
+
+/* 内容区滚动（除header外） */
+.fh-scroll {
+  position: absolute;
+  left: 0;
+  top: 74px;
+  width: 390px;
+  height: calc(844px - 74px);
+  padding: 8px 12px 140px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.fh-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 顶部装饰（in/out） */
+.fh-top {
+  position: relative;
+  width: 390px;
+  height: 0;
+}
+
+.fh-in {
+  position: absolute;
+  left: -7px;
+  top: 96px;
+  width: 54.834px;
+  height: 70.019px;
+  transform: rotate(8.378deg);
+}
+
+.fh-out {
+  position: absolute;
+  left: 110px;
+  top: -37px;
+  width: 73px;
+  height: 81px;
+}
+
+/* 总览区 */
+.fh-summary {
+  width: 366px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.fh-ring-wrap {
+  width: 140px;
+  height: 140px;
+  position: relative;
+}
+
+.fh-ring-wrap > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.fh-ring-wrap .water-ring-chart {
+  z-index: 2;
+}
+
+.fh-ring-wrap > div:not(.water-ring-chart) {
+  z-index: 1;
+  pointer-events: none;
+}
+
+.fh-summary-right {
+  width: 213px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.fh-status-pill {
+  width: 70px;
+  height: 20px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.fh-status-dot {
+  width: 6px;
+  height: 6px;
+}
+
+.fh-status-text {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: #000000;
+}
+
+.fh-ai-text {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #383838;
+  height: 35px;
+}
+
+.fh-metrics {
+  width: 213px;
+  display: flex;
+  gap: 5px;
+}
+
+.fh-metric-card {
+  width: 104px;
+  height: 63px;
+  background: #FDFDFF;
+  border-radius: 4px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+.fh-metric-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  line-height: normal;
+  color: #606263;
+}
+
+.fh-metric-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  color: #2CAD33;
+  height: 29px;
+}
+
+.fh-metric-sub {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: normal;
+  color: #606263;
+  height: 12px;
+}
+
+.fh-progress {
+  margin-top: 4px;
+}
+
+.fh-progress-track {
+  width: 96px;
+  height: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fh-progress-track--blue {
+  background: #D8E1FF;
+}
+
+.fh-progress-track--purple {
+  background: #EFDBFF;
+}
+
+.fh-progress-fill {
+  height: 6px;
+  border-radius: 4px;
+}
+
+.fh-progress-fill--blue {
+  background: #2D5FFF;
+}
+
+.fh-progress-fill--purple {
+  background: #8848DB;
+}
+
+/* 王某某的一天（固定展示5条，不内部滚动） */
+.fh-day-card {
+  width: 366px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  margin-top: 16px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+.fh-day-header {
+  width: 254px;
+}
+
+.fh-day-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #000000;
+  height: 23px;
+}
+
+.fh-day-sub {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  color: #595959;
+  height: 17px;
+}
+
+.fh-day-timeline {
+  position: relative;
+  margin-top: 8px;
+  height: 222px;
+  overflow: hidden;
+}
+
+.fh-day-line {
+  position: absolute;
+  left: 2px;
+  top: 8px;
+  width: 2px;
+  height: 208px;
+  background: #D9D9D9;
+  border-radius: 4px;
+}
+
+.fh-item {
+  display: flex;
+  gap: 4px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.fh-dot {
+  width: 6px;
+  height: 6px;
+  margin-top: 3px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.fh-dot--intake {
+  background: #2D5FFF;
+}
+
+.fh-dot--output {
+  background: #8848DB;
+}
+
+.fh-item-row {
+  width: 330px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 123px;
+}
+
+.fh-item-left {
+  width: 127px;
+  display: flex;
+  flex-direction: column;
+}
+
+.fh-item-top {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.fh-mini-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.fh-mini-meta {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  line-height: normal;
+  color: #595959;
+}
+
+.fh-item-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #181818;
+  height: 15px;
+}
+
+.fh-item-time {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 4px;
+  line-height: normal;
+  color: #595959;
+  height: 8px;
+}
+
+.fh-item-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: normal;
+  width: 73px;
+  text-align: right;
+}
+
+.fh-item-value--intake {
+  color: #2D5FFF;
+}
+
+.fh-item-value--output {
+  color: #8848DB;
+}
+
+/* 目标&计划 */
+.fh-plan-card {
+  width: 368px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  margin-top: 16px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+.fh-plan-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: normal;
+  color: #000000;
+  height: 29px;
+}
+
+.fh-goal-box {
+  width: 343px;
+  height: 56px;
+  background: #E4FFFE;
+  border-radius: 8px;
+  padding: 2px 4px;
+  box-sizing: border-box;
+}
+
+.fh-goal-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #FF832B;
+  height: 17px;
+}
+
+.fh-goal-list {
+  margin: 0;
+  padding-left: 14px;
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  line-height: normal;
+  color: #121827;
+}
+
+.fh-goal-list li {
+  height: 10px;
+}
+
+.fh-visit-box {
+  width: 343px;
+  height: 56px;
+  background: #E9F0F9;
+  border-radius: 8px;
+  padding: 6px 9px 6px 4px;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+.fh-visit-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #595959;
+  height: 17px;
+}
+
+.fh-visit-main {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: normal;
+  color: #000000;
+  height: 17px;
+}
+
+.fh-visit-sub {
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  line-height: normal;
+  color: #595959;
+  height: 10px;
+}
+
+@media (max-width: 390px) {
+  .family-home-page {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .fh-header {
+    width: 100vw;
+  }
+
+  .fh-scroll {
+    width: 100vw;
+    height: calc(100vh - 74px);
+  }
+}

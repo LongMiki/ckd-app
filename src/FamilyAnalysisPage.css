@@ -1,0 +1,689 @@
+/* 家属端-分析页（1530:767） */
+.family-analysis-page {
+  width: 390px;
+  height: 844px;
+  background: #F3F6F8;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 顶部 Frame711 固定 */
+.fap-header {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 390px;
+  height: 74px;
+  padding: 12px 12px 8px;
+  box-sizing: border-box;
+  z-index: 200;
+  background: rgba(217, 217, 217, 0);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fap-header-content {
+  width: 366px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fap-title-group {
+  width: 211px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.fap-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  color: #121827;
+  height: 29px;
+}
+
+.fap-subtitle {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: normal;
+  color: #5E6061;
+  height: 17px;
+}
+
+.fap-avatar {
+  width: 44px;
+  height: 44px;
+  position: relative;
+}
+
+.fap-avatar img {
+  width: 54.2px;
+  height: 54.2px;
+  position: absolute;
+  left: -3.1px;
+  top: -3.1px;
+  border-radius: 999px;
+  display: block;
+}
+
+/* 内容区滚动（除header外） */
+.fap-scroll {
+  position: absolute;
+  left: 0;
+  top: 74px;
+  width: 390px;
+  height: calc(844px - 74px);
+  padding: 8px 12px 140px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.fap-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 顶部日期 + 周统计 */
+.fap-top {
+  width: 367px;
+}
+
+.fap-date-row {
+  width: 367px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 84px;
+  margin-bottom: 8px;
+}
+
+.fap-round-btn {
+  width: 29px;
+  height: 29px;
+  border-radius: 22px;
+  border: 0.5px solid #FFFFFF;
+  background: #E9F0F9;
+  box-shadow: 2px 2px 5.1px 0px rgba(45, 95, 255, 0.25);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.fap-round-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.fap-date {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.fap-date-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.fap-date-text {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: normal;
+  color: #000000;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.fap-date-highlight {
+  color: #2D5FFF;
+}
+
+.fap-week-card {
+  width: 366px;
+  height: 260px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.fap-week-header {
+  width: 342px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.fap-week-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: #000000;
+}
+
+.fap-week-avg {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  color: #000000;
+  text-align: right;
+}
+
+.fap-bars {
+  width: 342px;
+  display: flex;
+  align-items: flex-end;
+  gap: 26px;
+  margin-bottom: 8px;
+}
+
+.fap-bar-col {
+  width: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* 周统计（1541:1796）：药丸柱形图 */
+.fap-week-bar-wrap {
+  width: 24px;
+  height: 124px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.fap-week-bar {
+  width: 24px;
+  border-radius: 999px;
+  background: #1FD6D3;
+}
+
+.fap-week-bar--active {
+  background: #2D5FFF;
+}
+
+.fap-bar-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #000000;
+  height: 17px;
+  line-height: normal;
+}
+
+.fap-medical {
+  width: 342px;
+  height: 60px;
+  background: #E9F0F9;
+  border-radius: 8px;
+  padding: 5px 8px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.fap-medical-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #000000;
+  margin-bottom: 2px;
+}
+
+.fap-medical-text {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  color: #181818;
+  line-height: normal;
+  display: -webkit-box;
+  line-clamp: 4;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 日志卡 */
+.fap-log-card {
+  width: 366px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 8px 11px;
+  box-sizing: border-box;
+  margin-top: 16px;
+}
+
+.fap-log-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.fap-log-title-group {
+  width: 254px;
+}
+
+.fap-log-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #000000;
+  height: 23px;
+}
+
+.fap-log-sub {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  color: #595959;
+  height: 17px;
+}
+
+.fap-log-controls {
+  width: 112px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.fap-filter-row {
+  width: 112px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.fap-chip {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  line-height: normal;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 0.2px solid transparent;
+  background: #FFFFFF;
+  color: #262626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 筛选 chip（1542:2018）：全部为填充态，其他为白底描边 */
+.fap-chip--all {
+  border: 0.2px solid transparent;
+  background: #FFFFFF;
+}
+
+.fap-chip--all.fap-chip--active {
+  background: #E9F0F9;
+}
+
+.fap-chip--intake {
+  border-color: #2D5FFF;
+  color: #2D5FFF;
+}
+
+.fap-chip--intake.fap-chip--active {
+  background: #E9F0F9;
+}
+
+.fap-chip--output {
+  border-color: #8848DB;
+  color: #8848DB;
+}
+
+.fap-chip--output.fap-chip--active {
+  background: #E9F0F9;
+}
+
+.fap-icon-row {
+  width: 112px;
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+
+.fap-icon-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  border: 0.2px solid transparent;
+  background: #FFFFFF;
+  padding: 4px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fap-icon-btn--active {
+  background: #E9F0F9;
+}
+
+.fap-icon-btn img {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+.fap-icon-btn--intake {
+  border-color: #2D5FFF;
+  box-shadow: 0 0 8px rgba(45, 95, 255, 0.25);
+}
+
+.fap-icon-btn--camera {
+  border-color: #FF832B;
+  box-shadow: 0 0 8px rgba(255, 131, 43, 0.25);
+}
+
+.fap-icon-btn--output {
+  border-color: #8848DB;
+  box-shadow: 0 0 8px rgba(136, 72, 219, 0.25);
+}
+
+/* 时间线 */
+.fap-timeline {
+  position: relative;
+  padding-top: 7px;
+}
+
+.fap-line {
+  position: absolute;
+  left: 3px;
+  top: 48px;
+  width: 0;
+  height: 294px;
+}
+
+.fap-line img {
+  width: 294px;
+  height: 0;
+  display: block;
+  transform: rotate(90deg);
+  transform-origin: 0 0;
+}
+
+.fap-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.fap-item-body {
+  width: 330px;
+}
+
+.fap-dot {
+  width: 6px;
+  height: 6px;
+  display: block;
+  margin-top: 2px;
+}
+
+.fap-item-row {
+  width: 330px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.fap-item-row--clickable {
+  cursor: pointer;
+}
+
+.fap-item-row--clickable:active {
+  opacity: 0.9;
+}
+
+.fap-expand-wrap {
+  width: 330px;
+  margin-top: 6px;
+}
+
+.fap-item-left {
+  width: 127px;
+  display: flex;
+  flex-direction: column;
+}
+
+.fap-item-top {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.fap-mini-icon {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+.fap-mini-meta {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  color: #595959;
+  line-height: normal;
+}
+
+.fap-item-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  color: #181818;
+  line-height: normal;
+  height: 15px;
+}
+
+.fap-item-time {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 4px;
+  color: #595959;
+  line-height: normal;
+  height: 8px;
+}
+
+.fap-item-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: normal;
+  width: 73px;
+  text-align: right;
+}
+
+.fap-item-value--intake {
+  color: #2D5FFF;
+}
+
+.fap-item-value--output {
+  color: #8848DB;
+}
+
+/* 观察卡 */
+.fap-observe {
+  width: 330px;
+  height: 78px;
+  border-radius: 8px;
+  background: #E9F0F9;
+  display: flex;
+  gap: 5px;
+  margin-left: 0;
+  margin-top: 6px;
+}
+
+.fap-observe-left {
+  width: 90px;
+  height: 78px;
+  position: relative;
+  border-radius: 4px 0 0 4px;
+  overflow: hidden;
+}
+
+.fap-observe-thumb {
+  width: 90px;
+  height: 78px;
+  overflow: hidden;
+  position: relative;
+}
+
+.fap-observe-thumb img {
+  position: absolute;
+  width: 100%;
+  height: 173.08%;
+  left: 0.48%;
+  top: -56.89%;
+  max-width: none;
+}
+
+.fap-observe-badge {
+  position: absolute;
+  top: 2px;
+  left: 56px;
+  width: 32px;
+  height: 8px;
+  background: #FFA945;
+  border-radius: 2px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 4px;
+  line-height: 8px;
+  text-align: center;
+  color: #121827;
+}
+
+.fap-observe-right {
+  width: 212px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.fap-observe-block {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.fap-observe-line {
+  width: 2px;
+  height: 20px;
+  border-radius: 4px;
+  background: #D9D9D9;
+  flex-shrink: 0;
+}
+
+.fap-observe-text {
+  width: 208px;
+  color: #585858;
+}
+
+.fap-observe-h {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 6px;
+  height: 10px;
+  line-height: normal;
+}
+
+.fap-observe-p {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  height: 10px;
+  line-height: normal;
+}
+
+.fap-risk-block {
+  display: flex;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.fap-risk-line {
+  width: 2px;
+  height: 32px;
+  border-radius: 4px;
+  background: #FA9B2D;
+  flex-shrink: 0;
+}
+
+.fap-risk-text {
+  width: 102px;
+}
+
+.fap-risk-h {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 6px;
+  height: 10px;
+  line-height: normal;
+  color: #FA9B2D;
+}
+
+.fap-risk-p {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  height: 10px;
+  line-height: normal;
+  color: #585858;
+}
+
+.fap-sync {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 4px;
+  height: 8px;
+  line-height: normal;
+  color: #595959;
+}
+
+@media (max-width: 390px) {
+  .family-analysis-page {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .fap-header {
+    width: 100vw;
+  }
+
+  .fap-scroll {
+    width: 100vw;
+    height: calc(100vh - 74px);
+  }
+}

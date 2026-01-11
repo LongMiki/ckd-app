@@ -1,0 +1,107 @@
+/* 迷你水分圆环图容器 */
+.water-ring-chart-mini {
+  position: relative;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.12));
+}
+
+/* 中心区域 */
+.water-ring-center-mini {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48%;
+  height: 48%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 中心绿色圆形 */
+.water-ring-center-circle-mini {
+  width: 100%;
+  height: 100%;
+  background: var(--status-gradient, linear-gradient(145deg, #5DD776 0%, #3DB854 50%, #2CAD33 100%));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 
+    0 2px 8px var(--status-shadow, rgba(70, 199, 97, 0.35)),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ========== 患者卡片图表标签样式 ========== */
+/* 数据标签容器 - 居中布局 */
+.water-ring-labels-mini {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2px; /* 可调整：两列之间的间距 */
+}
+
+/* 摄入量 - 左侧列，右对齐 */
+.water-ring-label-intake-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* 排出量 - 右侧列，左对齐 */
+.water-ring-label-output-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* 数值容器 */
+.water-ring-value-wrapper-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  line-height: 1;
+}
+
+/* ========== 患者卡片图表字体大小（可调整） ========== */
+/* 数值文字 - 当前: 6px */
+.water-ring-value-mini {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 8px; /* 可调整：数值字体大小 */
+  line-height: 1;
+  color: #F7F8F9;
+  white-space: nowrap;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* 百分号 - 当前: 6px */
+.water-ring-percent-mini {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 8px; /* 可调整：百分号字体大小 */
+  line-height: 1;
+  color: #F7F8F9;
+  white-space: nowrap;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* 标签文字 - 当前: 3px */
+.water-ring-text-mini {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 4px; /* 可调整：标签字体大小 */
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}

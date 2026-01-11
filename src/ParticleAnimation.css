@@ -1,0 +1,22 @@
+/* 粒子动画容器 */
+.particle-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* 单个粒子 */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  /* 使用CSS动画优化性能 */
+  will-change: transform, opacity;
+  /* 硬件加速 */
+  transform: translateZ(0);
+}

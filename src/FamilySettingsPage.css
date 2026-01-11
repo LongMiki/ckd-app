@@ -1,0 +1,328 @@
+/* 家属端设置页 - 根据Figma设计 node-id 1530:1004 */
+.family-settings-page-content {
+  width: 390px;
+  height: 844px;
+  background: #F3F6F8;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.fsp-title {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+  width: 266px;
+  height: 29px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  color: #121827;
+  text-align: center;
+}
+
+.fsp-content {
+  position: absolute;
+  left: 12px;
+  top: 67px;
+  width: 366px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  overflow: hidden;
+}
+
+/* 个人信息 + 两个统计卡 */
+.fsp-profile-block {
+  width: 317px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.fsp-profile-top {
+  width: 211px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.fsp-avatar-wrap {
+  width: 100px;
+  height: 100px;
+  position: relative;
+}
+
+.fsp-avatar {
+  width: 110.2px;
+  height: 110.2px;
+  position: absolute;
+  left: -3.1px;
+  top: -3.1px;
+  border-radius: 999px;
+  display: block;
+}
+
+.fsp-profile-text {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+}
+
+.fsp-name {
+  width: 100%;
+  height: 29px;
+  font-size: 16px;
+  line-height: 29px;
+  color: #121827;
+}
+
+.fsp-meta {
+  width: 100%;
+  height: 17px;
+  font-size: 10px;
+  line-height: 17px;
+  color: #5E6061;
+}
+
+.fsp-metrics-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+.fsp-metric-card {
+  width: 139px;
+  height: 63px;
+  background: #FDFDFF;
+  border-radius: 4px;
+  padding: 4px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fsp-metric-card--out {
+  width: 130px;
+}
+
+.fsp-metric-text {
+  width: 76px;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 4px;
+  box-sizing: border-box;
+}
+
+.fsp-metric-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 6px;
+  color: #606263;
+  line-height: normal;
+}
+
+.fsp-metric-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #2CAD33;
+  line-height: normal;
+}
+
+.fsp-metric-sub {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  color: #606263;
+  line-height: normal;
+}
+
+.fsp-metric-bar {
+  height: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fsp-metric-bar--blue {
+  background: #D8E1FF;
+}
+
+.fsp-metric-fill {
+  height: 6px;
+  border-radius: 4px;
+}
+
+.fsp-metric-fill--blue {
+  width: 108px;
+  background: #2D5FFF;
+}
+
+.fsp-metric-bar--purple {
+  background: #EFDBFF;
+}
+
+.fsp-metric-fill--purple {
+  width: 75px;
+  background: #8848DB;
+}
+
+/* 下方两块面板 */
+.fsp-panels {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fsp-panel {
+  width: 366px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.fsp-panel--identity {
+  height: 124px;
+  padding: 8px 10px;
+}
+
+.fsp-panel-row {
+  width: 345px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fsp-panel-row--identity {
+  height: 36px;
+}
+
+.fsp-row-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: normal;
+  color: #121827;
+}
+
+.fsp-caret {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.fsp-role-switch {
+  width: 124px;
+  height: 36px;
+  background: #E9F0F9;
+  border-radius: 999px;
+  padding: 6px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.fsp-role-pill {
+  height: 24px;
+  border-radius: 999px;
+  padding: 2px 12px;
+  box-sizing: border-box;
+  border: none;
+  background: transparent;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: normal;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fsp-role-pill--family {
+  color: #FFFFFF;
+  background: #2D5FFF;
+}
+
+.fsp-role-pill--nurse {
+  color: #20E1D7;
+}
+
+.fsp-role-pill--active.fsp-role-pill--nurse {
+  background: #2D5FFF;
+  color: #FFFFFF;
+}
+
+.fsp-role-pill--active.fsp-role-pill--family,
+.fsp-role-pill--active.fsp-role-pill--nurse {
+  box-shadow: 0 4px 10px rgba(45, 95, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.fsp-role-pill:hover {
+  background: rgba(45, 95, 255, 0.08);
+}
+
+.fsp-role-pill:focus-visible {
+  outline: 2px solid #2D5FFF;
+  outline-offset: 2px;
+}
+
+/* 菜单面板 */
+.fsp-panel--menu {
+  height: 239px;
+  padding: 8px 9px;
+}
+
+.fsp-menu-bg {
+  position: absolute;
+  left: 0;
+  top: 33px;
+  width: 348px;
+  height: 160px;
+}
+
+.fsp-menu-bg img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.fsp-menu-content {
+  position: relative;
+  margin-left: 3px;
+  width: 345px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fsp-panel-row--logout {
+  height: 32px;
+  justify-content: flex-start;
+}
+
+@media (max-width: 390px) {
+  .family-settings-page-content {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}

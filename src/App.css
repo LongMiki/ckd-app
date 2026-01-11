@@ -1,0 +1,407 @@
+/* 主容器 - 严格按照 Figma 尺寸 390x844 */
+.app-container {
+  width: 390px;
+  height: 844px;
+  background: #49BDD8;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s ease;
+}
+
+/* 家属模式 - 蓝色主题 */
+.app-container.family-mode {
+  background: #2D5FFF;
+}
+
+.app-container.family-mode .submit-btn {
+  background: #2D5FFF;
+}
+
+.app-container.family-mode .submit-btn:hover {
+  background: #1E4FEE;
+}
+
+/* 顶部标题区域 */
+.header {
+  padding-top: 18px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.448em;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+/* 白色内容区域 */
+.app-container::before {
+  content: '';
+  position: absolute;
+  top: 97px;
+  left: 0;
+  width: 390px;
+  height: 747px;
+  background: #FFFFFF;
+  border-radius: 40px 40px 0 0;
+  z-index: 0;
+}
+
+/* 角色选择区域 */
+.role-selector {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 8px;
+  margin: 0 41px;
+  margin-top: 45px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0px 4px 11px 0px rgba(217, 217, 217, 0.84);
+}
+
+.role-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  width: 144px;
+  height: 48px;
+  background: transparent; /* 未选中时背景透明 */
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.role-btn svg {
+  width: 24px;
+  height: 24px;
+  color: #5E6061; /* 未选中时图标为灰色 */
+  transition: color 0.3s ease;
+}
+
+.role-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.role-btn span {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.448em;
+  color: #5E6061; /* 未选中时文字为灰色 */
+  flex: 1;
+  transition: color 0.3s ease;
+}
+
+/* 家属按钮选中状态 */
+.role-btn.family-btn.selected {
+  background: #E9F0F9; /* 选中时显示背景 */
+}
+
+.role-btn.family-btn.selected svg {
+  color: #2D5FFF; /* 选中时图标为蓝色 */
+}
+
+.role-btn.family-btn.selected span {
+  color: #2D5FFF; /* 选中时文字为蓝色 */
+}
+
+/* 护工按钮选中状态 */
+.role-btn.caregiver-btn.selected {
+  background: #E9F4F9; /* 选中时显示背景 */
+}
+
+.role-btn.caregiver-btn.selected svg {
+  color: #20E1D7; /* 选中时图标为青绿色 */
+}
+
+.role-btn.caregiver-btn.selected span {
+  color: #20E1D7; /* 选中时文字为青绿色 */
+}
+
+/* 基础体征标题 */
+.section-title {
+  position: relative;
+  z-index: 1;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.448em;
+  color: #5E6061;
+  margin-left: 23px;
+  margin-top: 39px;
+  margin-bottom: 7px;
+}
+
+/* 输入框样式 */
+.input-field {
+  position: relative;
+  z-index: 1;
+  margin: 0 24px;
+  margin-bottom: 19px;
+}
+
+.input-field input {
+  width: 100%;
+  height: 64px;
+  background: #F3F6F8;
+  border: 0.5px solid #727374;
+  border-radius: 12px;
+  padding: 19px 16px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.448em;
+  color: #5E6061;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-field input::placeholder {
+  color: #9F9F9F;
+}
+
+.input-field input:focus {
+  border-color: #49BDD8;
+  background: #FFFFFF;
+}
+
+/* 输入框行（年龄和体重） */
+.input-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 22px;
+  margin: 0 24px;
+  margin-bottom: 19px;
+}
+
+.input-field.half {
+  flex: 1;
+  margin: 0;
+}
+
+.input-field.half input {
+  width: 100%;
+}
+
+/* GFR分期选择器 */
+.gfr-selector {
+  position: relative;
+  z-index: 1;
+  margin: 0 24px;
+  margin-bottom: 28px;
+  background: #F3F6F8;
+  border: 0.5px solid #727374;
+  border-radius: 12px;
+  padding: 8px 14px;
+}
+
+.gfr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.gfr-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gfr-label svg {
+  width: 12px;
+  height: 12px;
+}
+
+.gfr-label span {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.448em;
+  color: #5E6061;
+}
+
+.stage-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1.448em;
+  text-align: center;
+}
+
+/* GFR 1-2期 - 绿色 */
+.stage-badge-default {
+  background: #E6FCEF;
+  color: #4DC764;
+}
+
+/* GFR 3期 - 橙色 */
+.stage-badge-variant2 {
+  background: #FCF4E5;
+  color: #F5873B;
+}
+
+/* GFR 4-5期 - 红色 */
+.stage-badge-variant3 {
+  background: #FCEBE6;
+  color: #EF3C5B;
+}
+
+/* 阶段选择按钮 */
+.stage-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stage-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stage-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 19px;
+  width: 52px;
+  height: 48px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.276em;
+  color: #67696B;
+  transition: all 0.3s ease;
+}
+
+.stage-btn.selected {
+  width: 56px;
+  height: 50px;
+  background: #303030;
+  color: #FFFFFF;
+}
+
+.stage-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.stage-label-left,
+.stage-label-right {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  line-height: 1.448em;
+  color: #9F9F9F;
+}
+
+.stage-label-left {
+  text-align: left;
+}
+
+.stage-label-right {
+  text-align: right;
+}
+
+/* 非CKD患者按钮 */
+.non-ckd-badge {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px 8px;
+  height: 18px;
+  background: #D9D9D9;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1.448em;
+  color: #9F9F9F;
+  margin-left: auto;
+  margin-right: 24px;
+  margin-bottom: 20px;
+  width: fit-content;
+  align-self: flex-end;
+  transition: all 0.3s ease;
+}
+
+.non-ckd-badge:hover {
+  background: #C9C9C9;
+}
+
+.non-ckd-badge.selected {
+  background: #E6FCEF;
+  color: #4DC764;
+}
+
+/* 底部提交按钮 */
+.submit-btn {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 17px 33px;
+  height: 64px;
+  margin: 0 16px;
+  margin-top: auto;
+  margin-bottom: 24px;
+  background: #49BDD8;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 2px 2px 10px 0px rgba(45, 95, 255, 0.4);
+  cursor: pointer;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.448em;
+  color: #FFFFFF;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: #3BACC7;
+  transform: translateY(-2px);
+  box-shadow: 2px 4px 12px 0px rgba(45, 95, 255, 0.5);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* 响应式调整 - 统一APP样式 */
+@media (max-width: 390px) {
+  .app-container {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
