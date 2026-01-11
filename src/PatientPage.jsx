@@ -55,11 +55,11 @@ function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, s
     { id: 'ckd-medium', label: 'CKD中度 ', active: false },
     { id: 'ckd-heavy', label: 'CKD重度 ', active: false },
     { id: 'danger', label: '危险', active: false },
-    { id: 'warning', label: '警告', active: false },
     { id: 'normal', label: '正常', active: false }
   ]
 
   // 筛选并排序患者列表
+    // Removed duplicate import of React
   const filteredAndSortedPatients = patients
     .filter(p => {
       if (selectedFilter === '全部') return true
