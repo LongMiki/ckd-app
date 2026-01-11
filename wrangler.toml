@@ -1,0 +1,8 @@
+name = "ckd-app-1"
+account_id = "fd9d08181bb8d012e8c8665ee987898f"
+
+[build]
+command = "npm run build"
+
+[build.upload]
+format = "service-worker"
