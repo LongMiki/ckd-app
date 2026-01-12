@@ -58,7 +58,7 @@ function TimeNodeChart({
     // 遍历 timeline，累计到对应时间段
     sortedTimeline.forEach(entry => {
       const hour = parseTimeToHour(entry.time)
-      const value = entry.valueMl || 0
+      const value = entry.valueMl ?? 0
 
       if (entry.kind === 'intake') {
         cumulativeIntake += value
@@ -99,9 +99,9 @@ function TimeNodeChart({
         const hour = parseTimeToHour(entry.time)
         if (hour >= periodStart && hour < periodEnd) {
           if (entry.kind === 'intake') {
-            runningIntake += entry.valueMl || 0
+            runningIntake += entry.valueMl ?? 0
           } else if (entry.kind === 'output') {
-            runningOutput += entry.valueMl || 0
+            runningOutput += entry.valueMl ?? 0
           }
         }
       })

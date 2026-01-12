@@ -28,9 +28,9 @@ function FamilyHomePage({ setActiveTab, timeline = [], setTimeline }) {
     let totalOut = 0
     timeline.forEach(item => {
       if (item.kind === 'intake') {
-        totalIn += item.valueMl || 0
+        totalIn += item.valueMl ?? 0
       } else if (item.kind === 'output') {
-        totalOut += item.valueMl || 0
+        totalOut += item.valueMl ?? 0
       }
     })
     return { inMl: totalIn, outMl: totalOut }
@@ -88,7 +88,7 @@ function FamilyHomePage({ setActiveTab, timeline = [], setTimeline }) {
     return timeline.map(item => ({
       ...item,
       time: item.sourceLabel ? `${item.time} ${item.sourceLabel}` : item.time,
-      valueText: item.kind === 'output' ? `- ${item.valueMl}ml` : `+ ${item.valueMl}ml`
+      valueText: item.kind === 'output' ? `- ${item.valueMl ?? 0}ml` : `+ ${item.valueMl ?? 0}ml`
     }))
   }, [timeline])
 
