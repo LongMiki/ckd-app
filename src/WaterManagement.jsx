@@ -75,12 +75,14 @@ function WaterManagement({ activeTab, setActiveTab, onOpenPatientDetail, patient
   // 按状态排序患者（严重 > 注意 > 安全）
   const sortedPatients = [...patients].sort((a, b) => {
     const statusOrder = { 'emergency': 0, 'risk': 1, 'normal': 2 }
-    return statusOrder[a.status] - statusOrder[b.status]
+    const aStatus = a.status ?? 'normal'
+    const bStatus = b.status ?? 'normal'
+    return statusOrder[aStatus] - statusOrder[bStatus]
   })
   
   // 平均净入量 = 所有患者 (摄入 - 排出) 的平均值
   const averageNetMl = patients.length
-    ? Math.round(patients.reduce((sum, p) => sum + (p.inMl - p.outMl), 0) / patients.length)
+    ? Math.round(patients.reduce((sum, p) => sum + ((p.inMl ?? 0) - (p.outMl ?? 0)), 0) / patients.length)
     : 0
   const averageNetText = `${averageNetMl >= 0 ? '+' : ''}${averageNetMl} mL`
   

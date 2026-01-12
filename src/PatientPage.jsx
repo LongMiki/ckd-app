@@ -14,9 +14,9 @@ const PATIENT_STATUS = {
 // AI 简要报告生成函数
 function generateAISummary(patient) {
   if (!patient) return ''
-  
+
   const name = patient.name || '患者'
-  const netBalance = (patient.inMl || 0) - (patient.outMl || 0)
+  const netBalance = (patient.inMl ?? 0) - (patient.outMl ?? 0)
   
   let assessment = ''
   if (netBalance > 300) {
@@ -77,7 +77,9 @@ function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, s
     .sort((a, b) => {
       // 按状态严重程度排序：emergency > risk > normal
       const statusOrder = { 'emergency': 0, 'risk': 1, 'normal': 2 }
-      return statusOrder[a.status] - statusOrder[b.status]
+      const aStatus = a.status ?? 'normal'
+      const bStatus = b.status ?? 'normal'
+      return statusOrder[aStatus] - statusOrder[bStatus]
     })
 
   return (
@@ -168,20 +170,20 @@ function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, s
                       <div className="pp-metric-box">
                         <div className="pp-metric-row">
                           <div className="pp-metric-label">摄入量</div>
-                          <div className="pp-metric-value">{p.inMl} ml</div>
+                          <div className="pp-metric-value">{p.inMl ?? 0} ml</div>
                         </div>
                         <div className="pp-meter-bg pp-meter-bg-blue">
-                          <div className="pp-meter-fill pp-meter-fill-blue" style={{ width: `${p.inMlMax > 0 ? Math.round((p.inMl / p.inMlMax) * 100) : 0}%` }} />
+                          <div className="pp-meter-fill pp-meter-fill-blue" style={{ width: `${(p.inMlMax ?? 0) > 0 ? Math.round(((p.inMl ?? 0) / (p.inMlMax ?? 1)) * 100) : 0}%` }} />
                         </div>
                       </div>
 
                       <div className="pp-metric-box">
                         <div className="pp-metric-row">
                           <div className="pp-metric-label">排出量</div>
-                          <div className="pp-metric-value">{p.outMl} ml</div>
+                          <div className="pp-metric-value">{p.outMl ?? 0} ml</div>
                         </div>
                         <div className="pp-meter-bg pp-meter-bg-purple">
-                          <div className="pp-meter-fill pp-meter-fill-purple" style={{ width: `${p.outMlMax > 0 ? Math.round((p.outMl / p.outMlMax) * 100) : 0}%` }} />
+                          <div className="pp-meter-fill pp-meter-fill-purple" style={{ width: `${(p.outMlMax ?? 0) > 0 ? Math.round(((p.outMl ?? 0) / (p.outMlMax ?? 1)) * 100) : 0}%` }} />
                         </div>
                       </div>
                     </div>
@@ -199,14 +201,14 @@ function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, s
         onClose={() => setIntakeModalOpen(false)} 
         patientName={currentPatient}
         patientList={patients}
-        onRecordIntake={(patientName, entry) => {
+                onRecordIntake={(patientName, entry) => {
           // 更新患者的 timeline 和 inMl
           setPatients(prev => prev.map(p => {
             if (p.name === patientName) {
               return {
                 ...p,
                 timeline: [entry, ...(p.timeline || [])],
-                inMl: p.inMl + entry.valueMl
+                        inMl: (p.inMl ?? 0) + (entry.valueMl ?? 0)
               }
             }
             return p
@@ -225,8 +227,8 @@ function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, s
               return {
                 ...p,
                 timeline: [entry, ...(p.timeline || [])],
-                outMl: p.outMl + entry.valueMl,
-                urinationCount: (p.urinationCount || 0) + 1
+                outMl: (p.outMl ?? 0) + (entry.valueMl ?? 0),
+                urinationCount: (p.urinationCount ?? 0) + 1
               }
             }
             return p
