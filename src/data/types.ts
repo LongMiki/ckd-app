@@ -35,10 +35,10 @@ export type GfrGroup = 'normal' | 'gfr_1_2' | 'gfr_3' | 'gfr_4_5'
  */
 export interface PatientRegistration {
   patientName: string           // 患者名称
-  age: number                   // 年龄
-  weight: number                // 体重(kg)
-  isCKD: boolean                // 是否 CKD 患者
-  gfrStage: GfrStage            // GFR 分期（非CKD为null）
+  age?: number | null           // 年龄（可选/可为 null）
+  weight?: number | null        // 体重(kg)（可选/可为 null）
+  isCKD?: boolean               // 是否 CKD 患者（可选）
+  gfrStage?: GfrStage | null    // GFR 分期（非CKD为null 或可省略）
 }
 
 /**
@@ -47,12 +47,12 @@ export interface PatientRegistration {
  */
 export interface PatientBasicInfo extends PatientRegistration {
   id: string                    // 患者唯一ID
-  createdAt: string             // 建档时间 ISO8601
-  updatedAt?: string            // 更新时间 ISO8601（可选）
-  
-  // 根据 GFR 计算的阈值
-  intakeLimit: number           // 摄入上限(ml)
-  outputLimit: number           // 排出上限(ml)
+  createdAt?: string            // 建档时间 ISO8601（可选）
+  updatedAt?: string | null     // 更新时间 ISO8601（可选/可为 null）
+
+  // 根据 GFR 计算的阈值（后端可选返回，前端 normalize 可补齐）
+  intakeLimit?: number | null   // 摄入上限(ml)
+  outputLimit?: number | null   // 排出上限(ml)
   
   // 显示用（可选）
   avatar?: string               // 头像URL
@@ -72,30 +72,30 @@ export interface PatientDashboard {
   updatedAt?: string            // 可选更新时间
   
   // ===== 摄入数据 =====
-  totalIntake: number           // 当日总摄入(ml) - 来自饮水机+拍照识别
-  intakeLimit: number           // 摄入上限(ml)
+  totalIntake?: number | null           // 当日总摄入(ml) - 可能缺失
+  intakeLimit?: number | null           // 摄入上限(ml)
   
   // ===== 排出数据 =====
-  totalOutput: number           // 当日总排出(ml) - 来自尿壶
-  outputLimit: number           // 排出上限(ml)
+  totalOutput?: number | null           // 当日总排出(ml) - 可能缺失
+  outputLimit?: number | null           // 排出上限(ml)
   
   // ===== 尿液指标（来自智能尿壶）=====
-  urineSpecificGravity: number | null  // 尿比重 (正常 1.010-1.025)
-  urineOsmolality: number | null       // 尿渗透压 mOsm/kg (正常 300-600)
-  urinationCount: number               // 排尿次数
+  urineSpecificGravity?: number | null  // 尿比重 (可能未上报)
+  urineOsmolality?: number | null       // 尿渗透压 (可能未上报)
+  urinationCount?: number | null        // 排尿次数（可选）
   
   // ===== 计算指标 =====
-  netIntake: number             // 净入量 = totalIntake - totalOutput
-  inOutRatio: number            // 入出比 = totalIntake / totalOutput
+  netIntake?: number | null             // 净入量 = totalIntake - totalOutput
+  inOutRatio?: number | null            // 入出比
   
   // ===== 状态（后端根据阈值表判定）=====
-  status: PatientStatus
+  status?: PatientStatus
   
   // ===== AI 报告 =====
-  aiSummary: AIPatientSummary
+  aiSummary?: AIPatientSummary
   
   // ===== 时间线 =====
-  timeline: TimelineEntry[]
+  timeline?: TimelineEntry[]
 }
 
 /**
@@ -163,12 +163,12 @@ export interface TimelineEntry {
   patientId: string
   kind: TimelineKind            // 'intake' | 'output'
   source: DataSource            // 数据来源设备
-  valueMl: number               // 数值(ml)
-  value?: number                // 兼容字段（旧版可能使用 `value`）
-  time: string                  // 时间 '14:30'
-  timestamp: string             // ISO8601 完整时间戳
-  timeAgo: string               // 相对时间 '25分钟前'
-  title: string                 // 描述文本
+  valueMl?: number | null               // 数值(ml)
+  value?: number | null                 // 兼容字段（旧版可能使用 `value`）
+  time?: string                  // 时间 '14:30'（可选）
+  timestamp?: string             // ISO8601 完整时间戳（可选）
+  timeAgo?: string               // 相对时间 '25分钟前'（可选）
+  title?: string                 // 描述文本（可选）
   
   // ===== 拍照模块专有（source='camera'）=====
   imageUrl?: string
@@ -215,14 +215,14 @@ export interface CaregiverDashboard {
   overallStatus: PatientStatus
   
   // ===== 汇总数据 =====
-  totalIntake: number           // 所有患者总摄入
-  totalIntakeLimit: number
-  totalOutput: number           // 所有患者总排出
-  totalOutputLimit: number
-  avgNetIntake: number          // 平均净入量
+  totalIntake?: number | null           // 所有患者总摄入（可选）
+  totalIntakeLimit?: number | null
+  totalOutput?: number | null           // 所有患者总排出（可选）
+  totalOutputLimit?: number | null
+  avgNetIntake?: number | null          // 平均净入量（可选）
   
   // ===== AI 整体报告 =====
-  aiSummary: AICaregiverSummary
+  aiSummary?: AICaregiverSummary
   
   // ===== 患者列表 =====
   patients: PatientListItem[]
@@ -242,20 +242,20 @@ export interface AICaregiverSummary {
  */
 export interface PatientListItem {
   id: string
-  name: string
-  fullName: string              // '王叔叔-病床三'
-  avatar: string
-  gfrStage: GfrStage
-  gfrDisplay: string            // 'GFR Ⅱ期'
-  meta: string                  // 'GFR Ⅱ期 70kg'
+  name?: string
+  fullName?: string              // '王叔叔-病床三'
+  avatar?: string
+  gfrStage?: GfrStage | null
+  gfrDisplay?: string            // 'GFR Ⅱ期'
+  meta?: string                  // 'GFR Ⅱ期 70kg'
   createdAt?: string
-  updatedAt?: string
+  updatedAt?: string | null
   
-  totalIntake: number
-  totalOutput: number
-  intakeLimit: number
-  outputLimit: number
-  status: PatientStatus
+  totalIntake?: number | null
+  totalOutput?: number | null
+  intakeLimit?: number | null
+  outputLimit?: number | null
+  status?: PatientStatus
   
   // 当前时段（风险排序用）
   currentPeriod: CurrentPeriodData

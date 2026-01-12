@@ -103,7 +103,11 @@ export async function getPatientBasicInfo(patientId: string): Promise<ApiRespons
         return mockDelay(mockFamilyPatient)
       }
     }
-    return mockDelay(mockFamilyPatient)
+    const normalized = normalize.normalizeObject(mockFamilyPatient) as PatientBasicInfo
+    // ensure limits computed from gfr if missing
+    normalized.intakeLimit = normalized.intakeLimit ?? getIntakeLimitByGfr(normalized.gfrStage ?? null)
+    normalized.outputLimit = normalized.outputLimit ?? getOutputLimitByGfr(normalized.gfrStage ?? null)
+    return mockDelay(normalized)
   }
   
   return fetchApi<PatientBasicInfo>(`/patients/${patientId}`)
@@ -156,10 +160,14 @@ export async function getPatientDashboard(
         const dashboard = calculateDashboardFromTimeline(patientId, timeline)
         return mockDelay(dashboard)
       } catch {
-        return mockDelay(mockFamilyDashboard)
+        const normalized = normalize.normalizeObject(mockFamilyDashboard)
+        normalized.timeline = normalize.normalizeTimelineEntries(normalized.timeline || [])
+        return mockDelay(normalized)
       }
     }
-    return mockDelay(mockFamilyDashboard)
+    const normalized = normalize.normalizeObject(mockFamilyDashboard)
+    normalized.timeline = normalize.normalizeTimelineEntries(normalized.timeline || [])
+    return mockDelay(normalized)
   }
   
   const dateParam = date || new Date().toISOString().split('T')[0]
@@ -183,10 +191,10 @@ export async function getPatientTimeline(
         const timeline: TimelineEntry[] = normalize.normalizeTimelineEntries(timelineRaw)
         return mockDelay(timeline.filter(t => t.patientId === patientId))
       } catch {
-        return mockDelay(mockFamilyTimeline)
+        return mockDelay(normalize.normalizeTimelineEntries(mockFamilyTimeline).filter(t => t.patientId === patientId))
       }
     }
-    return mockDelay(mockFamilyTimeline)
+    return mockDelay(normalize.normalizeTimelineEntries(mockFamilyTimeline).filter(t => t.patientId === patientId))
   }
   
   const dateParam = date || new Date().toISOString().split('T')[0]
@@ -198,12 +206,13 @@ export async function getPatientTimeline(
  */
 export async function addTimelineEntry(entry: Omit<TimelineEntry, 'id'>): Promise<ApiResponse<TimelineEntry>> {
   if (USE_MOCK) {
-    const newEntry: TimelineEntry = {
+    const rawNew = {
       ...entry,
       id: `tl_${Date.now()}`,
       valueMl: (entry as any).valueMl ?? (entry as any).value ?? 0,
       timestamp: (entry as any).timestamp ?? new Date().toISOString(),
     }
+    const newEntry: TimelineEntry = normalize.normalizeTimelineEntries([rawNew])[0]
     
     // 更新 localStorage
     const raw = localStorage.getItem('timelineData')

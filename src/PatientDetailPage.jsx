@@ -35,6 +35,171 @@ function generateAISummary(patient) {
   return `AI生成简要报告：${name}今天${assessment}`
 }
 
+// 生成详细的 HTML 报告（为医生准备，注重逻辑与内容）
+function generatePatientReportHTML(patient, timeline = []) {
+  const now = new Date()
+  const patientName = patient?.name || '未命名患者'
+  const header = `
+    <div style="font-family: Helvetica, Arial, sans-serif; padding:20px; max-width:900px; margin:0 auto; color:#111">
+      <h1>患者数据报告</h1>
+      <p>姓名：${patientName}</p>
+      <p>ID：${patient?.id || '-'} &nbsp;|&nbsp; 生成时间：${now.toLocaleString()}</p>
+      <hr />
+  `
+
+  // 基本信息
+  const basics = `
+    <h2>一、基本信息</h2>
+    <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:12px">
+      <tr><td style="padding:6px; border:1px solid #eee; width:200px">姓名</td><td style="padding:6px; border:1px solid #eee">${patient?.name || '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">住院/床位</td><td style="padding:6px; border:1px solid #eee">${patient?.fullName || '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">既往/备注</td><td style="padding:6px; border:1px solid #eee">${patient?.metaFull || '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">体重 (kg)</td><td style="padding:6px; border:1px solid #eee">${patient?.weight ?? '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">GFR / 分期</td><td style="padding:6px; border:1px solid #eee">${patient?.gfr ?? '-'} / ${patient?.stage || '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">药物/过敏</td><td style="padding:6px; border:1px solid #eee">${(patient?.medications && patient.medications.join(', ')) || (patient?.allergies && patient.allergies.join(', ')) || '-'}</td></tr>
+    </table>
+  `
+
+  // 计算时间线统计
+  const parsedTimeline = (timeline || []).map((t) => {
+    // 尝试解析时间为 Date
+    let date = null
+    try {
+      date = t.time ? new Date(t.time) : null
+      if (date && isNaN(date.getTime())) date = null
+    } catch (e) { date = null }
+    return { ...t, _date: date }
+  })
+
+  const totalIntake = parsedTimeline.filter(x => x.kind === 'intake').reduce((s, x) => s + (x.valueMl || 0), 0)
+  const totalOutput = parsedTimeline.filter(x => x.kind === 'output').reduce((s, x) => s + (x.valueMl || 0), 0)
+  const intakeCount = parsedTimeline.filter(x => x.kind === 'intake').length
+  const outputCount = parsedTimeline.filter(x => x.kind === 'output').length
+
+  // 近 7 天按日统计（如果能解析到日期）
+  const last7 = {}
+  const nowDay = new Date()
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(nowDay.getFullYear(), nowDay.getMonth(), nowDay.getDate() - i)
+    last7[d.toISOString().slice(0,10)] = { intake: 0, output: 0 }
+  }
+  parsedTimeline.forEach((x) => {
+    if (!x._date) return
+    const key = x._date.toISOString().slice(0,10)
+    if (last7[key]) {
+      if (x.kind === 'intake') last7[key].intake += (x.valueMl || 0)
+      if (x.kind === 'output') last7[key].output += (x.valueMl || 0)
+    }
+  })
+
+  const last7Rows = Object.keys(last7).map(k => ({ date:k, intake:last7[k].intake, output:last7[k].output }))
+
+  const statsSection = `
+    <h2>二、水分统计与趋势</h2>
+    <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:12px">
+      <tr><td style="padding:6px; border:1px solid #eee; width:260px">系统记录总摄入 (ml)</td><td style="padding:6px; border:1px solid #eee">${totalIntake || patient?.inMl || 0}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">系统记录总排出 (ml)</td><td style="padding:6px; border:1px solid #eee">${totalOutput || patient?.outMl || 0}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">事件计数（摄入 / 排出）</td><td style="padding:6px; border:1px solid #eee">${intakeCount} / ${outputCount}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">平均每次摄入 (ml)</td><td style="padding:6px; border:1px solid #eee">${intakeCount? Math.round(totalIntake/intakeCount): '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">平均每次排出 (ml)</td><td style="padding:6px; border:1px solid #eee">${outputCount? Math.round(totalOutput/outputCount): '-'}</td></tr>
+    </table>
+    <h3>近 7 天按日统计</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:12px">
+      <thead><tr style="background:#fafafa"><th style="padding:6px;border:1px solid #eee">日期</th><th style="padding:6px;border:1px solid #eee">摄入 (ml)</th><th style="padding:6px;border:1px solid #eee">排出 (ml)</th></tr></thead>
+      <tbody>
+        ${last7Rows.map(r => `<tr><td style="padding:6px;border:1px solid #eee">${r.date}</td><td style="padding:6px;border:1px solid #eee">${r.intake}</td><td style="padding:6px;border:1px solid #eee">${r.output}</td></tr>`).join('')}
+      </tbody>
+    </table>
+  `
+
+  // 警示/阈值判定
+  const alerts = []
+  const netBalanceToday = (patient?.inMl || 0) - (patient?.outMl || 0)
+  if (netBalanceToday > 300) alerts.push('净平衡偏高：可能摄入过多')
+  if (netBalanceToday > 150 && netBalanceToday <= 300) alerts.push('净平衡略高：注意液体摄入')
+  if (netBalanceToday < -200) alerts.push('净平衡偏低：可能脱水或排出过多')
+  if (patient?.urineOsmolality && (patient.urineOsmolality < 200 || patient.urineOsmolality > 1000)) alerts.push('尿渗透压异常')
+  if (patient?.urineSpecificGravity && (patient.urineSpecificGravity < 1.005 || patient.urineSpecificGravity > 1.030)) alerts.push('尿比重异常')
+
+  const alertsHtml = `
+    <h2>三、阈值与警示</h2>
+    ${alerts.length ? `<ul>${alerts.map(a=>`<li style="margin:6px 0">${a}</li>`).join('')}</ul>` : '<p>未发现明显异常阈值</p>'}
+  `
+
+  // GFR 趋势（如果有历史数组）
+  let gfrHtml = ''
+  if (patient?.gfrHistory && Array.isArray(patient.gfrHistory) && patient.gfrHistory.length > 0) {
+    const entries = patient.gfrHistory.slice().sort((a,b)=> new Date(a.date) - new Date(b.date))
+    const first = entries[0].value
+    const last = entries[entries.length-1].value
+    const delta = last - first
+    const trend = delta > 0 ? '上升' : (delta < 0 ? '下降' : '无明显变化')
+    gfrHtml = `
+      <h2>四、GFR 趋势</h2>
+      <p>记录点：${entries.length} 项；起始 ${first}，最近 ${last}；趋势：${trend}（变化 ${delta}）</p>
+    `
+  }
+
+  // 时间线明细
+  let timelineHtml = ''
+  if (timeline && timeline.length > 0) {
+    timelineHtml += '<h2>五、日志时间线（最近记录）</h2>'
+    timelineHtml += '<table style="width:100%; border-collapse:collapse; font-size:13px">'
+    timelineHtml += '<thead><tr style="background:#fafafa"><th style="padding:8px;border:1px solid #eee">时间</th><th style="padding:8px;border:1px solid #eee">类型</th><th style="padding:8px;border:1px solid #eee">来源</th><th style="padding:8px;border:1px solid #eee">数值</th><th style="padding:8px;border:1px solid #eee">备注</th></tr></thead>'
+    timelineHtml += '<tbody>'
+    timeline.slice().reverse().forEach((t) => {
+      timelineHtml += `<tr><td style="padding:8px;border:1px solid #eee">${t.time || '-'}</td><td style="padding:8px;border:1px solid #eee">${t.kind || '-'}</td><td style="padding:8px;border:1px solid #eee">${t.source || '-'}</td><td style="padding:8px;border:1px solid #eee">${t.valueText || t.valueMl || '-'}</td><td style="padding:8px;border:1px solid #eee">${t.title || '-'}</td></tr>`
+    })
+    timelineHtml += '</tbody></table>'
+  } else {
+    timelineHtml += '<h2>五、日志时间线</h2><p>暂无日志数据</p>'
+  }
+
+  // AI 简要结论
+  const aiSummary = generateAISummary(patient)
+
+  const footer = `
+      <h2>六、AI简要结论与建议</h2>
+      <p>${aiSummary}</p>
+      <hr />
+      <p style="font-size:12px;color:#666">注：本报告为系统自动生成，用于临床参考。诊断与用药请以医生判断为准。</p>
+    </div>
+  `
+
+  return header + basics + statsSection + alertsHtml + gfrHtml + timelineHtml + footer
+}
+
+// 生成并下载 HTML 报告文件
+function downloadReportHTML(filename, htmlContent) {
+  try {
+    const blob = new Blob([`<!doctype html><html><head><meta charset="utf-8"><title>${filename}</title></head><body>${htmlContent}</body></html>`], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    console.warn('download failed', e)
+  }
+}
+
+// 在浏览器中打开报告并触发打印/导出
+function openReportWindowAndPrint(htmlContent) {
+  const w = window.open('', '_blank')
+  if (!w) return
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>患者数据报告</title></head><body>')
+  w.document.write(htmlContent)
+  w.document.write('</body></html>')
+  w.document.close()
+  // 等待内容渲染后触发打印
+  setTimeout(() => {
+    try { w.print() } catch (e) { /* ignore */ }
+  }, 600)
+}
+
 const imgCaretCircleLeft = '/icons/CaretCircleLeft.svg'
 const imgArrowUpRight = '/icons/ArrowUpRight.svg'
 const imgDropHalfBottom = '/icons/DropHalfBottom.svg'
@@ -184,6 +349,20 @@ function PatientDetailPage({ patientData, onBack, patients, setPatients }) {
     setExpandedId((prev) => (prev === item.id ? null : item.id))
   }
 
+  // 导出报告处理函数
+  const handleExportReport = useCallback(() => {
+    const html = generatePatientReportHTML(currentPatient, timelineData)
+    // 同时打开报告窗口并触发打印；并下载 HTML 文件以便存档
+    try {
+      openReportWindowAndPrint(html)
+      const safeName = (currentPatient?.name || 'patient').replace(/\s+/g,'_')
+      const filename = `${safeName}_report_${new Date().toISOString().slice(0,10)}.html`
+      downloadReportHTML(filename, html)
+    } catch (e) {
+      console.error('Export report failed', e)
+    }
+  }, [currentPatient, timelineData])
+
   return (
     <div className="patient-detail-page">
       {/* 顶部固定栏 Frame 711 */}
@@ -195,8 +374,13 @@ function PatientDetailPage({ patientData, onBack, patients, setPatients }) {
           <div className="pd-header-title">
             <h1 className="pd-title">患者详情</h1>
           </div>
-          <div className="pd-link-btn">
-            <img src={imgArrowUpRight} alt="链接" />
+          <div
+            className="pd-link-btn"
+            onClick={handleExportReport}
+            style={{ cursor: 'pointer' }}
+            title="导出患者报告"
+          >
+            <img src={imgArrowUpRight} alt="导出报告" />
           </div>
         </div>
       </div>

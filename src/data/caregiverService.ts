@@ -15,6 +15,7 @@ import {
   mockCaregiverDashboard,
   mockPatientList,
 } from './mockData'
+import normalize from './normalize'
 import { calculateCaregiverStatus } from './thresholds'
 
 // ========== 配置开关 ==========
@@ -84,13 +85,16 @@ export async function getCaregiverDashboard(
     const riskCount = mockPatientList.filter(p => p.status === 'risk').length
     const overallStatus = calculateCaregiverStatus(emergencyCount, riskCount)
     
-    return mockDelay({
+    const normalizedPatients = mockPatientList.map(p => normalize.normalizeObject(p))
+    const normalizedDashboard = normalize.normalizeObject({
       ...mockCaregiverDashboard,
       overallStatus,
       emergencyCount,
       riskCount,
       normalCount: mockPatientList.length - emergencyCount - riskCount,
     })
+    normalizedDashboard.patients = normalizedPatients
+    return mockDelay(normalizedDashboard)
   }
   
   const dateParam = date || new Date().toISOString().split('T')[0]
@@ -120,9 +124,10 @@ export async function getPatientList(
     const start = (page - 1) * pageSize
     const end = start + pageSize
     const paged = filtered.slice(start, end)
+    const normalizedPaged = paged.map(p => normalize.normalizeObject(p))
     
     return mockDelay({
-      items: paged,
+      items: normalizedPaged,
       total: filtered.length,
       page,
       pageSize,
@@ -149,7 +154,7 @@ export async function getNeedAttentionPatients(
   if (USE_MOCK) {
     const attention = mockPatientList.filter(
       p => p.status === 'emergency' || p.status === 'risk'
-    )
+    ).map(p => normalize.normalizeObject(p))
     return mockDelay(attention)
   }
   
@@ -181,7 +186,7 @@ export async function getPatientsSortedByRisk(
       return bNet - aNet
     })
     
-    return mockDelay(sorted)
+    return mockDelay(sorted.map(p => normalize.normalizeObject(p)))
   }
   
   return fetchApi<PatientListItem[]>(`/caregiver/${caregiverId}/patients/sorted-by-risk`)
@@ -198,7 +203,7 @@ export async function getPatientDetail(
   if (USE_MOCK) {
     const patient = mockPatientList.find(p => p.id === patientId)
     if (patient) {
-      return mockDelay(patient)
+      return mockDelay(normalize.normalizeObject(patient))
     }
     return {
       success: false,

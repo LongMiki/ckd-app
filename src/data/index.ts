@@ -31,7 +31,7 @@ export {
 } from './mockData'
 
 // ========== 兼容性工具 ==========
-export { normalizeObject, normalizeTimelineEntries, validateTimelineEntry, validatePatientBasicInfo } from './normalize'
+export { normalizeObject, normalizeTimelineEntries, validateTimelineEntry, validatePatientBasicInfo, safeGet } from './normalize'
 
 // ========== 患者服务 ==========
 export {
