@@ -174,18 +174,20 @@ export async function getPatientsSortedByRisk(
       risk: 1,
       normal: 2,
     }
-    
+
     const sorted = [...mockPatientList].sort((a, b) => {
-      // 先按状态排序
-      const statusDiff = statusOrder[a.status] - statusOrder[b.status]
+      // 先按状态排序，status 可能为 undefined，使用默认 'normal'
+      const aStatus = (a.status ?? 'normal') as PatientStatus
+      const bStatus = (b.status ?? 'normal') as PatientStatus
+      const statusDiff = statusOrder[aStatus] - statusOrder[bStatus]
       if (statusDiff !== 0) return statusDiff
-      
-      // 同状态按净摄入量降序
-      const aNet = a.totalIntake - a.totalOutput
-      const bNet = b.totalIntake - b.totalOutput
+
+      // 同状态按净摄入量降序，数值可能为 null/undefined，使用 0 作为兜底
+      const aNet = (a.totalIntake ?? 0) - (a.totalOutput ?? 0)
+      const bNet = (b.totalIntake ?? 0) - (b.totalOutput ?? 0)
       return bNet - aNet
     })
-    
+
     return mockDelay(sorted.map(p => normalize.normalizeObject(p)))
   }
   

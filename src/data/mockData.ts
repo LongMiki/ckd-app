@@ -337,7 +337,8 @@ export const mockPeriodData: PatientPeriodData = {
 export function generateTimelineWithAgo(entries: Omit<TimelineEntry, 'timeAgo'>[]): TimelineEntry[] {
   const now = new Date()
   return entries.map(entry => {
-    const entryTime = new Date(entry.timestamp)
+    // entry.timestamp 可能为 undefined，使用当前时间作为回退
+    const entryTime = entry.timestamp ? new Date(entry.timestamp) : new Date()
     const diffMs = now.getTime() - entryTime.getTime()
     const diffMinutes = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMinutes / 60)
