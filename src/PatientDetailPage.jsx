@@ -17,7 +17,7 @@ function generateAISummary(patient) {
   if (!patient) return ''
   
   const name = patient.name || '患者'
-  const netBalance = (patient.inMl || 0) - (patient.outMl || 0)
+    const netBalance = (patient.inMl ?? 0) - (patient.outMl ?? 0)
   
   let assessment = ''
   if (netBalance > 300) {
@@ -39,30 +39,8 @@ function generateAISummary(patient) {
 function generatePatientReportHTML(patient, timeline = []) {
   const now = new Date()
   const patientName = patient?.name || '未命名患者'
-  const header = `
-    <div style="font-family: Helvetica, Arial, sans-serif; padding:20px; max-width:900px; margin:0 auto; color:#111">
-      <h1>患者数据报告</h1>
-      <p>姓名：${patientName}</p>
-      <p>ID：${patient?.id || '-'} &nbsp;|&nbsp; 生成时间：${now.toLocaleString()}</p>
-      <hr />
-  `
 
-  // 基本信息
-  const basics = `
-    <h2>一、基本信息</h2>
-    <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:12px">
-      <tr><td style="padding:6px; border:1px solid #eee; width:200px">姓名</td><td style="padding:6px; border:1px solid #eee">${patient?.name || '-'}</td></tr>
-      <tr><td style="padding:6px; border:1px solid #eee">住院/床位</td><td style="padding:6px; border:1px solid #eee">${patient?.fullName || '-'}</td></tr>
-      <tr><td style="padding:6px; border:1px solid #eee">既往/备注</td><td style="padding:6px; border:1px solid #eee">${patient?.metaFull || '-'}</td></tr>
-      <tr><td style="padding:6px; border:1px solid #eee">体重 (kg)</td><td style="padding:6px; border:1px solid #eee">${patient?.weight ?? '-'}</td></tr>
-      <tr><td style="padding:6px; border:1px solid #eee">GFR / 分期</td><td style="padding:6px; border:1px solid #eee">${patient?.gfr ?? '-'} / ${patient?.stage || '-'}</td></tr>
-      <tr><td style="padding:6px; border:1px solid #eee">药物/过敏</td><td style="padding:6px; border:1px solid #eee">${(patient?.medications && patient.medications.join(', ')) || (patient?.allergies && patient.allergies.join(', ')) || '-'}</td></tr>
-    </table>
-  `
-
-  // 计算时间线统计
   const parsedTimeline = (timeline || []).map((t) => {
-    // 尝试解析时间为 Date
     let date = null
     try {
       date = t.time ? new Date(t.time) : null
@@ -76,23 +54,25 @@ function generatePatientReportHTML(patient, timeline = []) {
   const intakeCount = parsedTimeline.filter(x => x.kind === 'intake').length
   const outputCount = parsedTimeline.filter(x => x.kind === 'output').length
 
-  // 近 7 天按日统计（如果能解析到日期）
-  const last7 = {}
-  const nowDay = new Date()
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(nowDay.getFullYear(), nowDay.getMonth(), nowDay.getDate() - i)
-    last7[d.toISOString().slice(0,10)] = { intake: 0, output: 0 }
-  }
-  parsedTimeline.forEach((x) => {
-    if (!x._date) return
-    const key = x._date.toISOString().slice(0,10)
-    if (last7[key]) {
-      if (x.kind === 'intake') last7[key].intake += (x.valueMl || 0)
-      if (x.kind === 'output') last7[key].output += (x.valueMl || 0)
-    }
-  })
+  const header = `
+    <div style="font-family: Helvetica, Arial, sans-serif; padding:20px; max-width:900px; margin:0 auto; color:#111">
+      <h1>患者数据报告</h1>
+      <p>姓名：${patientName}</p>
+      <p>ID：${patient?.id || '-'} &nbsp;|&nbsp; 生成时间：${now.toLocaleString()}</p>
+      <hr />
+  `
 
-  const last7Rows = Object.keys(last7).map(k => ({ date:k, intake:last7[k].intake, output:last7[k].output }))
+  const basics = `
+    <h2>一、基本信息</h2>
+    <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:12px">
+      <tr><td style="padding:6px; border:1px solid #eee; width:200px">姓名</td><td style="padding:6px; border:1px solid #eee">${patient?.name || '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">住院/床位</td><td style="padding:6px; border:1px solid #eee">${patient?.fullName || '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">既往/备注</td><td style="padding:6px; border:1px solid #eee">${patient?.metaFull || '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">体重 (kg)</td><td style="padding:6px; border:1px solid #eee">${patient?.weight ?? '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">GFR / 分期</td><td style="padding:6px; border:1px solid #eee">${patient?.gfr ?? '-'} / ${patient?.stage || '-'}</td></tr>
+      <tr><td style="padding:6px; border:1px solid #eee">药物/过敏</td><td style="padding:6px; border:1px solid #eee">${(patient?.medications && patient.medications.join(', ')) || (patient?.allergies && patient.allergies.join(', ')) || '-'}</td></tr>
+    </table>
+  `
 
   const statsSection = `
     <h2>二、水分统计与趋势</h2>
@@ -103,16 +83,8 @@ function generatePatientReportHTML(patient, timeline = []) {
       <tr><td style="padding:6px; border:1px solid #eee">平均每次摄入 (ml)</td><td style="padding:6px; border:1px solid #eee">${intakeCount? Math.round(totalIntake/intakeCount): '-'}</td></tr>
       <tr><td style="padding:6px; border:1px solid #eee">平均每次排出 (ml)</td><td style="padding:6px; border:1px solid #eee">${outputCount? Math.round(totalOutput/outputCount): '-'}</td></tr>
     </table>
-    <h3>近 7 天按日统计</h3>
-    <table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:12px">
-      <thead><tr style="background:#fafafa"><th style="padding:6px;border:1px solid #eee">日期</th><th style="padding:6px;border:1px solid #eee">摄入 (ml)</th><th style="padding:6px;border:1px solid #eee">排出 (ml)</th></tr></thead>
-      <tbody>
-        ${last7Rows.map(r => `<tr><td style="padding:6px;border:1px solid #eee">${r.date}</td><td style="padding:6px;border:1px solid #eee">${r.intake}</td><td style="padding:6px;border:1px solid #eee">${r.output}</td></tr>`).join('')}
-      </tbody>
-    </table>
   `
 
-  // 警示/阈值判定
   const alerts = []
   const netBalanceToday = (patient?.inMl || 0) - (patient?.outMl || 0)
   if (netBalanceToday > 300) alerts.push('净平衡偏高：可能摄入过多')
@@ -126,7 +98,6 @@ function generatePatientReportHTML(patient, timeline = []) {
     ${alerts.length ? `<ul>${alerts.map(a=>`<li style="margin:6px 0">${a}</li>`).join('')}</ul>` : '<p>未发现明显异常阈值</p>'}
   `
 
-  // GFR 趋势（如果有历史数组）
   let gfrHtml = ''
   if (patient?.gfrHistory && Array.isArray(patient.gfrHistory) && patient.gfrHistory.length > 0) {
     const entries = patient.gfrHistory.slice().sort((a,b)=> new Date(a.date) - new Date(b.date))
@@ -140,7 +111,6 @@ function generatePatientReportHTML(patient, timeline = []) {
     `
   }
 
-  // 时间线明细
   let timelineHtml = ''
   if (timeline && timeline.length > 0) {
     timelineHtml += '<h2>五、日志时间线（最近记录）</h2>'
@@ -155,7 +125,6 @@ function generatePatientReportHTML(patient, timeline = []) {
     timelineHtml += '<h2>五、日志时间线</h2><p>暂无日志数据</p>'
   }
 
-  // AI 简要结论
   const aiSummary = generateAISummary(patient)
 
   const footer = `
@@ -172,7 +141,9 @@ function generatePatientReportHTML(patient, timeline = []) {
 // 生成并下载 HTML 报告文件
 function downloadReportHTML(filename, htmlContent) {
   try {
-    const blob = new Blob([`<!doctype html><html><head><meta charset="utf-8"><title>${filename}</title></head><body>${htmlContent}</body></html>`], { type: 'text/html' })
+    const blob = new Blob([
+      `<!doctype html><html><head><meta charset="utf-8"><title>${filename}</title></head><body>${htmlContent}</body></html>`
+    ], { type: 'text/html' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -194,7 +165,6 @@ function openReportWindowAndPrint(htmlContent) {
   w.document.write(htmlContent)
   w.document.write('</body></html>')
   w.document.close()
-  // 等待内容渲染后触发打印
   setTimeout(() => {
     try { w.print() } catch (e) { /* ignore */ }
   }, 600)
