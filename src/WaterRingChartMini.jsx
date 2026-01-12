@@ -1,6 +1,15 @@
-import React, { useMemo } from 'react'
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
+import React, { useMemo, useState, useEffect } from 'react'
 import './WaterRingChartMini.css'
+
+function useRechartsMini() {
+  const [mod, setMod] = useState(null)
+  useEffect(() => {
+    let mounted = true
+    import('recharts').then(m => { if (mounted) setMod(m) }).catch(() => {})
+    return () => { mounted = false }
+  }, [])
+  return mod
+}
 
 /**
  * 迷你双轨径向进度图 - 患者卡片用
@@ -20,6 +29,8 @@ function WaterRingChartMini({
   uniqueId = '',  // 用于区分多个实例的唯一ID
   statusColor = '#46C761'  // 中心圆形颜色，默认安全绿色
 }) {
+  const Recharts = useRechartsMini()
+  // 先声明所有 hooks（保持顺序一致），再基于 Recharts 是否可用决定渲染占位或真实图表
   // 外环数据（排出）- 顺时针
   const outerData = useMemo(() => [
     { name: 'output', value: outputPercent },
@@ -36,6 +47,12 @@ function WaterRingChartMini({
   const referenceData = useMemo(() => [
     { name: 'full', value: 100 }
   ], [])
+
+  if (!Recharts) {
+    return <div style={{ width: size, height: size }} />
+  }
+
+  const { PieChart, Pie, Cell, ResponsiveContainer } = Recharts
 
   // 使用唯一ID避免多实例渐变冲突
   const outerGradientId = `outerGradientMini-${uniqueId}`
@@ -61,7 +78,7 @@ function WaterRingChartMini({
         </defs>
       </svg>
 
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width={size} height={size}>
         <PieChart>
           {/* 外环背景轨道 */}
           <Pie

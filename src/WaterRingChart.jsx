@@ -1,6 +1,16 @@
-import React, { useMemo } from 'react'
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
+import React, { useMemo, useState, useEffect } from 'react'
 import './WaterRingChart.css'
+
+// Dynamically load recharts to reduce initial bundle size
+function useRecharts() {
+  const [mod, setMod] = useState(null)
+  useEffect(() => {
+    let mounted = true
+    import('recharts').then(m => { if (mounted) setMod(m) }).catch(() => {})
+    return () => { mounted = false }
+  }, [])
+  return mod
+}
 
 /**
  * 双轨径向进度图 - 护工端水分球组件
@@ -18,6 +28,11 @@ function WaterRingChart({
   size = 200,
   statusColor = '#46C761'  // 中心圆形颜色，默认安全绿色
 }) {
+  const Recharts = useRecharts()
+  // 重要：所有 hooks（包括 useRecharts 自身内部的 hooks）必须在组件的同一顺序调用
+  // 即使 Recharts 尚未加载，也要在渲染路径上保持 hooks 顺序一致。
+  // 下面先计算与渲染无关的 memoized 数据，然后再判断 Recharts 是否可用并渲染占位或真实图表。
+
   // 外环数据（排出）- 顺时针
   const outerData = useMemo(() => [
     { name: 'output', value: outputPercent },
@@ -34,6 +49,13 @@ function WaterRingChart({
   const referenceData = useMemo(() => [
     { name: 'full', value: 100 }
   ], [])
+
+  if (!Recharts) {
+    // 占位元素：保持尺寸一致但不执行任何 Recharts 渲染，这样 hooks 的数量与顺序保持稳定
+    return <div style={{ width: size, height: size }} />
+  }
+
+  const { PieChart, Pie, Cell, ResponsiveContainer } = Recharts
 
   // 渐变色定义
   const outerGradientId = 'outerGradient'
@@ -59,7 +81,7 @@ function WaterRingChart({
         </defs>
       </svg>
 
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width={size} height={size}>
         <PieChart>
           {/* 外环背景轨道 - 淡色完整圆环 */}
           <Pie

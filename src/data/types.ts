@@ -48,6 +48,7 @@ export interface PatientRegistration {
 export interface PatientBasicInfo extends PatientRegistration {
   id: string                    // 患者唯一ID
   createdAt: string             // 建档时间 ISO8601
+  updatedAt?: string            // 更新时间 ISO8601（可选）
   
   // 根据 GFR 计算的阈值
   intakeLimit: number           // 摄入上限(ml)
@@ -68,6 +69,7 @@ export interface PatientBasicInfo extends PatientRegistration {
 export interface PatientDashboard {
   patientId: string
   date: string                  // ISO 日期 '2026-01-10'
+  updatedAt?: string            // 可选更新时间
   
   // ===== 摄入数据 =====
   totalIntake: number           // 当日总摄入(ml) - 来自饮水机+拍照识别
@@ -161,7 +163,8 @@ export interface TimelineEntry {
   patientId: string
   kind: TimelineKind            // 'intake' | 'output'
   source: DataSource            // 数据来源设备
-  value: number                 // 数值(ml)
+  valueMl: number               // 数值(ml)
+  value?: number                // 兼容字段（旧版可能使用 `value`）
   time: string                  // 时间 '14:30'
   timestamp: string             // ISO8601 完整时间戳
   timeAgo: string               // 相对时间 '25分钟前'
@@ -199,6 +202,7 @@ export interface AIFoodRecognition {
 export interface CaregiverDashboard {
   caregiverId: string
   date: string
+  updatedAt?: string            // 可选更新时间
   
   // ===== 患者统计 =====
   totalPatients: number
@@ -244,6 +248,8 @@ export interface PatientListItem {
   gfrStage: GfrStage
   gfrDisplay: string            // 'GFR Ⅱ期'
   meta: string                  // 'GFR Ⅱ期 70kg'
+  createdAt?: string
+  updatedAt?: string
   
   totalIntake: number
   totalOutput: number

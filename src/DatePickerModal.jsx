@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { devLog } from './utils/devLog'
 import './DatePickerModal.css'
 
 function DatePickerModal({ isOpen, onClose }) {
@@ -9,7 +10,7 @@ function DatePickerModal({ isOpen, onClose }) {
   const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
   const handleConfirm = () => {
-    console.log('选择日期:', { year: selectedYear, month: selectedMonth })
+    devLog('选择日期:', { year: selectedYear, month: selectedMonth })
     onClose()
   }
 

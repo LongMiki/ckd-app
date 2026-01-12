@@ -1,4 +1,5 @@
 import React from 'react'
+import { devLog } from './utils/devLog'
 import './BottomNavigation.css'
 
 const imgSubtract = '/figma/family-bottom-subtract.svg'
@@ -12,7 +13,10 @@ function BottomNavigation({ activeTab, setActiveTab }) {
       <div className="nav-buttons">
         <button 
           className={`nav-btn ${activeTab === 'home' ? 'nav-active' : ''}`}
-          onClick={() => setActiveTab('home')}
+          onClick={() => {
+            devLog('[Nav] click: home')
+            setActiveTab('home')
+          }}
         >
           <div className="nav-icon">
             <img 
@@ -27,7 +31,10 @@ function BottomNavigation({ activeTab, setActiveTab }) {
         
         <button 
           className={`nav-btn ${activeTab === 'patient' ? 'nav-active' : ''}`}
-          onClick={() => setActiveTab('patient')}
+          onClick={() => {
+            devLog('[Nav] click: patient')
+            setActiveTab('patient')
+          }}
         >
           <div className="nav-icon">
             <img 
@@ -42,7 +49,10 @@ function BottomNavigation({ activeTab, setActiveTab }) {
         
         <button 
           className={`nav-btn ${activeTab === 'device' ? 'nav-active' : ''}`}
-          onClick={() => setActiveTab('device')}
+          onClick={() => {
+            devLog('[Nav] click: device')
+            setActiveTab('device')
+          }}
         >
           <div className="nav-icon">
             <img 
@@ -57,7 +67,10 @@ function BottomNavigation({ activeTab, setActiveTab }) {
         
         <button 
           className={`nav-btn ${activeTab === 'settings' ? 'nav-active' : ''}`}
-          onClick={() => setActiveTab('settings')}
+          onClick={() => {
+            devLog('[Nav] click: settings')
+            setActiveTab('settings')
+          }}
         >
           <div className="nav-icon">
             <img 

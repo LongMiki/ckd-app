@@ -26,6 +26,7 @@ export const mockFamilyPatient: PatientBasicInfo = {
   isCKD: true,
   gfrStage: 2,
   createdAt: '2026-01-08T10:30:00.000Z',
+  updatedAt: '2026-01-09T08:00:00.000Z',
   intakeLimit: 2200,  // GFR 1-2 期
   outputLimit: 1800,
   avatar: '/figma/Rectangle 283.png',
@@ -40,7 +41,7 @@ export const mockFamilyTimeline: TimelineEntry[] = [
     patientId: 'family_patient_001',
     kind: 'intake',
     source: 'water_dispenser',
-    value: 200,
+    valueMl: 200,
     time: '08:15',
     timestamp: '2026-01-10T08:15:00.000Z',
     timeAgo: '4小时前',
@@ -51,7 +52,7 @@ export const mockFamilyTimeline: TimelineEntry[] = [
     patientId: 'family_patient_001',
     kind: 'intake',
     source: 'camera',
-    value: 180,
+    valueMl: 180,
     time: '12:30',
     timestamp: '2026-01-10T12:30:00.000Z',
     timeAgo: '1小时前',
@@ -70,7 +71,7 @@ export const mockFamilyTimeline: TimelineEntry[] = [
     patientId: 'family_patient_001',
     kind: 'output',
     source: 'urinal',
-    value: 210,
+    valueMl: 210,
     time: '10:45',
     timestamp: '2026-01-10T10:45:00.000Z',
     timeAgo: '2小时前',
@@ -83,7 +84,7 @@ export const mockFamilyTimeline: TimelineEntry[] = [
     patientId: 'family_patient_001',
     kind: 'intake',
     source: 'water_dispenser',
-    value: 150,
+    valueMl: 150,
     time: '14:20',
     timestamp: '2026-01-10T14:20:00.000Z',
     timeAgo: '30分钟前',
@@ -129,6 +130,8 @@ export const mockFamilyDashboard: PatientDashboard = {
 export const mockPatientList: PatientListItem[] = [
   {
     id: '1',
+    createdAt: '2026-01-01T09:00:00.000Z',
+    updatedAt: '2026-01-09T18:00:00.000Z',
     name: '陈阿姨',
     fullName: '陈阿姨-病床一',
     avatar: '/figma/Rectangle 283.png',
@@ -152,6 +155,8 @@ export const mockPatientList: PatientListItem[] = [
   },
   {
     id: '2',
+    createdAt: '2026-01-02T09:00:00.000Z',
+    updatedAt: '2026-01-09T18:05:00.000Z',
     name: '钱奶奶',
     fullName: '钱奶奶-病床二',
     avatar: '/figma/Rectangle 283.png',
@@ -175,6 +180,8 @@ export const mockPatientList: PatientListItem[] = [
   },
   {
     id: '3',
+    createdAt: '2026-01-03T09:00:00.000Z',
+    updatedAt: '2026-01-09T18:10:00.000Z',
     name: '王叔叔',
     fullName: '王叔叔-病床三',
     avatar: '/figma/Rectangle 283.png',
@@ -198,6 +205,8 @@ export const mockPatientList: PatientListItem[] = [
   },
   {
     id: '4',
+    createdAt: '2026-01-04T09:00:00.000Z',
+    updatedAt: '2026-01-09T18:15:00.000Z',
     name: '李阿姨',
     fullName: '李阿姨-病床四',
     avatar: '/figma/Rectangle 283.png',
@@ -221,6 +230,8 @@ export const mockPatientList: PatientListItem[] = [
   },
   {
     id: '5',
+    createdAt: '2026-01-05T09:00:00.000Z',
+    updatedAt: '2026-01-09T18:20:00.000Z',
     name: '赵爷爷',
     fullName: '赵爷爷-病床五',
     avatar: '/figma/Rectangle 283.png',
@@ -244,6 +255,8 @@ export const mockPatientList: PatientListItem[] = [
   },
   {
     id: '6',
+    createdAt: '2026-01-06T09:00:00.000Z',
+    updatedAt: '2026-01-09T18:25:00.000Z',
     name: '孙奶奶',
     fullName: '孙奶奶-病床六',
     avatar: '/figma/Rectangle 283.png',
@@ -273,6 +286,7 @@ export const mockPatientList: PatientListItem[] = [
 export const mockCaregiverDashboard: CaregiverDashboard = {
   caregiverId: 'caregiver_001',
   date: '2026-01-10',
+  updatedAt: '2026-01-10T12:00:00.000Z',
   
   totalPatients: 6,
   emergencyCount: 3,

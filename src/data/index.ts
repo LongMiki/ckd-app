@@ -30,6 +30,9 @@ export {
   generateTimelineWithAgo,
 } from './mockData'
 
+// ========== 兼容性工具 ==========
+export { normalizeObject, normalizeTimelineEntries, validateTimelineEntry, validatePatientBasicInfo } from './normalize'
+
 // ========== 患者服务 ==========
 export {
   USE_MOCK as PATIENT_USE_MOCK,

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import App from './App.jsx'
-import MainApp from './MainApp.jsx'
+import React, { useEffect, useState, Suspense, lazy } from 'react'
+
+const App = lazy(() => import('./App.jsx'))
+const MainApp = lazy(() => import('./MainApp.jsx'))
 
 
 function Root() {
@@ -29,7 +30,9 @@ function Root() {
   return (
     <div className="app-root-container">
       <div className="app-root-scroll">
-        {mode === 'main' ? <MainApp /> : <App onComplete={handleOnboardingComplete} />}
+        <Suspense fallback={<div style={{ width: 390, height: 844 }} />}>
+          {mode === 'main' ? <MainApp /> : <App onComplete={handleOnboardingComplete} />}
+        </Suspense>
       </div>
     </div>
   )

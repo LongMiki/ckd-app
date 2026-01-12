@@ -10,4 +10,15 @@ export default defineConfig({
       'd64a6676525bef0b-175-13-211-118.serveousercontent.com'
     ]
   }
+  ,
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          recharts: ['recharts']
+        }
+      }
+    }
+  }
 })

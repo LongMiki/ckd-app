@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { devLog, devTable, devClear } from './utils/devLog'
 import './App.css'
 
 function App({ onComplete }) {
@@ -107,11 +108,11 @@ function App({ onComplete }) {
     }
 
     // 美化的控制台输出
-    console.clear()
-    console.log('%c==================== 患者建档数据 ====================', 'color: #0ea5e9; font-weight: bold; font-size: 14px;')
-    console.log('')
-    console.log('%c📋 基本信息', 'color: #10b981; font-weight: bold;')
-    console.table({
+    devClear()
+    devLog('%c==================== 患者建档数据 ====================', 'color: #0ea5e9; font-weight: bold; font-size: 14px;')
+    devLog('')
+    devLog('%c📋 基本信息', 'color: #10b981; font-weight: bold;')
+    devTable({
       '患者ID': formData.id,
       '患者姓名': formData.patient_name || '(未填写)',
       '年龄': formData.age ? `${formData.age} 岁` : '(未填写)',
@@ -119,27 +120,27 @@ function App({ onComplete }) {
       '用户角色': formData._display.role_text,
     })
     
-    console.log('%c🩺 CKD 信息', 'color: #f59e0b; font-weight: bold;')
-    console.table({
+    devLog('%c🩺 CKD 信息', 'color: #f59e0b; font-weight: bold;')
+    devTable({
       'CKD患者': formData.is_ckd_patient ? '是' : '否',
       'GFR分期': formData.gfr_stage ? `${formData.gfr_stage} 期` : '(无)',
       '风险等级': formData._display.stage_text || '(无)',
     })
     
-    console.log('%c⏰ 时间信息', 'color: #8b5cf6; font-weight: bold;')
-    console.table({
+    devLog('%c⏰ 时间信息', 'color: #8b5cf6; font-weight: bold;')
+    devTable({
       '建档时间': formData._display.timestamp_cn,
       'ISO时间': formData.created_at,
     })
     
-    console.log('')
-    console.log('%c📦 完整 JSON 数据:', 'color: #64748b; font-weight: bold;')
-    console.log(JSON.stringify(formData, null, 2))
+    devLog('')
+    devLog('%c📦 完整 JSON 数据:', 'color: #64748b; font-weight: bold;')
+    devLog(JSON.stringify(formData, null, 2))
     
-    console.log('')
-    console.log('%c💡 提示: 可在浏览器 DevTools → Application → Local Storage 中查看', 'color: #94a3b8; font-style: italic;')
-    console.log('%c==================== 数据保存完成 ====================', 'color: #0ea5e9; font-weight: bold; font-size: 14px;')
-    console.log('')
+    devLog('')
+    devLog('%c💡 提示: 可在浏览器 DevTools → Application → Local Storage 中查看', 'color: #94a3b8; font-style: italic;')
+    devLog('%c==================== 数据保存完成 ====================', 'color: #0ea5e9; font-weight: bold; font-size: 14px;')
+    devLog('')
 
     // 保存到 localStorage（带格式化）
     localStorage.setItem('patientData', JSON.stringify(formData, null, 2))
@@ -148,23 +149,23 @@ function App({ onComplete }) {
     // 如果完整填写了所有信息，保存为新患者数据（供护工端患者列表使用）
     if (isComplete) {
       localStorage.setItem('newPatientData', JSON.stringify(formData))
-      console.log('%c✅ 信息完整，已记录到护工端患者列表', 'color: #10b981; font-weight: bold;')
+      devLog('%c✅ 信息完整，已记录到护工端患者列表', 'color: #10b981; font-weight: bold;')
     } else {
-      console.log('%c⚠️ 信息不完整，不会添加到护工端患者列表', 'color: #f59e0b;')
+      devLog('%c⚠️ 信息不完整，不会添加到护工端患者列表', 'color: #f59e0b;')
     }
 
     // 全局调试工具（可在控制台直接调用）
     window.__debugPatientData = () => {
       const data = localStorage.getItem('patientData')
       if (data) {
-        console.log('%c📋 当前患者建档数据:', 'color: #0ea5e9; font-weight: bold;')
-        console.log(JSON.parse(data))
+        devLog('%c📋 当前患者建档数据:', 'color: #0ea5e9; font-weight: bold;')
+        devLog(JSON.parse(data))
       } else {
-        console.log('%c⚠️  暂无患者数据', 'color: #f59e0b;')
+        devLog('%c⚠️  暂无患者数据', 'color: #f59e0b;')
       }
     }
     
-    console.log('%c🔧 调试提示: 输入 __debugPatientData() 可随时查看数据', 'color: #10b981;')
+    devLog('%c🔧 调试提示: 输入 __debugPatientData() 可随时查看数据', 'color: #10b981;')
 
     if (typeof onComplete === 'function') onComplete(formData)
   }

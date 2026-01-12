@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { devLog } from './utils/devLog'
 import { io } from 'socket.io-client'
 import './MainApp.css'
 import WaterManagement from './WaterManagement'
@@ -123,7 +124,7 @@ function MainApp() {
           }
           return p
         }))
-        console.log('%c✅ 患者信息已更新:', 'color: #10b981; font-weight: bold;', name)
+        devLog('%c✅ 患者信息已更新:', 'color: #10b981; font-weight: bold;', name)
       } else {
         // 不存在，添加新患者
         const newPatient = {
@@ -153,7 +154,7 @@ function MainApp() {
         }
         
         setPatients(prev => [...prev, newPatient])
-        console.log('%c✅ 新患者已添加到列表:', 'color: #10b981; font-weight: bold;', name)
+        devLog('%c✅ 新患者已添加到列表:', 'color: #10b981; font-weight: bold;', name)
       }
       
       // 清除已处理的新患者数据
@@ -168,16 +169,23 @@ function MainApp() {
   // 说明：后端应推送形如 { event: 'device:update', payload: { patientId, kind, data, time } }
   // 其中 patientId 可为数字（病床）或 'current_patient'（家属端单患者档案）
   useEffect(() => {
-    // SOCKET_URL 优先来自环境变量（Render/生产部署时可设置），回退到页面所在 origin，再回退到本地开发地址
-    // 只在 Vite 构建时读取 import.meta.env，浏览器端不要访问 process.env
+    // SOCKET_URL 优先来自环境变量（生产部署时可设置）。
+    // 在本地开发且未提供 VITE_SOCKET_URL 时，跳过 socket 初始化以避免无后端时的 WebSocket 错误噪音。
     let SOCKET_URL = '';
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SOCKET_URL) {
-      SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+    const hasEnvSocket = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SOCKET_URL
+    if (hasEnvSocket) {
+      SOCKET_URL = import.meta.env.VITE_SOCKET_URL
     } else if (typeof window !== 'undefined' && window.location) {
-      SOCKET_URL = window.location.origin;
+      SOCKET_URL = window.location.origin
     } else {
-      SOCKET_URL = 'http://localhost:4000';
+      SOCKET_URL = 'http://localhost:4000'
     }
+
+    if (!hasEnvSocket && typeof window !== 'undefined' && window.location && window.location.hostname === 'localhost') {
+      devLog('[MainApp] skipping socket init in local dev (no VITE_SOCKET_URL)')
+      return
+    }
+
     let socket
 
     try {
@@ -305,6 +313,7 @@ function MainApp() {
       detailScrollBackupRef.current = el.scrollTop || 0
       el.scrollTop = 0
     }
+    devLog('[MainApp] open patient detail:', patientData && (patientData.id || patientData.name))
     setSelectedPatient(patientData)
     setShowPatientDetail(true)
   }

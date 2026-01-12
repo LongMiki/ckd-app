@@ -17,6 +17,7 @@ import {
   mockFamilyTimeline,
   mockPeriodData,
 } from './mockData'
+import normalize from './normalize'
 import { getCurrentTimePeriod } from './thresholds'
 
 // ========== 配置开关 ==========
@@ -83,17 +84,19 @@ export async function getPatientBasicInfo(patientId: string): Promise<ApiRespons
     const raw = localStorage.getItem('patientData')
     if (raw) {
       try {
-        const stored = JSON.parse(raw)
+        const storedRaw = JSON.parse(raw)
+        const stored = normalize.normalizeObject(storedRaw)
         const patient: PatientBasicInfo = {
           id: stored.id || 'family_patient',
-          patientName: stored.patient_name || '未命名',
-          age: stored.age || null,
-          weight: stored.weight || null,
-          isCKD: stored.is_ckd_patient ?? true,
-          gfrStage: stored.gfr_stage || null,
-          createdAt: stored._display?.timestamp_cn || new Date().toISOString(),
-          intakeLimit: getIntakeLimitByGfr(stored.gfr_stage),
-          outputLimit: getOutputLimitByGfr(stored.gfr_stage),
+          patientName: stored.patientName ?? stored.patient_name ?? '未命名',
+          age: stored.age ?? null,
+          weight: stored.weight ?? null,
+          isCKD: stored.isCKD ?? stored.is_ckd_patient ?? true,
+          gfrStage: stored.gfrStage ?? stored.gfr_stage ?? null,
+          createdAt: stored.createdAt ?? stored._display?.timestamp_cn ?? new Date().toISOString(),
+          updatedAt: stored.updatedAt ?? undefined,
+          intakeLimit: getIntakeLimitByGfr(stored.gfrStage ?? stored.gfr_stage ?? null),
+          outputLimit: getOutputLimitByGfr(stored.gfrStage ?? stored.gfr_stage ?? null),
         }
         return mockDelay(patient)
       } catch {
@@ -148,7 +151,8 @@ export async function getPatientDashboard(
     const raw = localStorage.getItem('timelineData')
     if (raw) {
       try {
-        const timeline: TimelineEntry[] = JSON.parse(raw)
+        const timelineRaw: any[] = JSON.parse(raw)
+        const timeline: TimelineEntry[] = normalize.normalizeTimelineEntries(timelineRaw)
         const dashboard = calculateDashboardFromTimeline(patientId, timeline)
         return mockDelay(dashboard)
       } catch {
@@ -175,7 +179,8 @@ export async function getPatientTimeline(
     const raw = localStorage.getItem('timelineData')
     if (raw) {
       try {
-        const timeline: TimelineEntry[] = JSON.parse(raw)
+        const timelineRaw: any[] = JSON.parse(raw)
+        const timeline: TimelineEntry[] = normalize.normalizeTimelineEntries(timelineRaw)
         return mockDelay(timeline.filter(t => t.patientId === patientId))
       } catch {
         return mockDelay(mockFamilyTimeline)
@@ -196,11 +201,14 @@ export async function addTimelineEntry(entry: Omit<TimelineEntry, 'id'>): Promis
     const newEntry: TimelineEntry = {
       ...entry,
       id: `tl_${Date.now()}`,
+      valueMl: (entry as any).valueMl ?? (entry as any).value ?? 0,
+      timestamp: (entry as any).timestamp ?? new Date().toISOString(),
     }
     
     // 更新 localStorage
     const raw = localStorage.getItem('timelineData')
-    const timeline: TimelineEntry[] = raw ? JSON.parse(raw) : []
+    const timelineRaw: any[] = raw ? JSON.parse(raw) : []
+    const timeline: TimelineEntry[] = normalize.normalizeTimelineEntries(timelineRaw)
     timeline.push(newEntry)
     localStorage.setItem('timelineData', JSON.stringify(timeline))
     
@@ -278,11 +286,11 @@ function calculateDashboardFromTimeline(
   
   const totalIntake = patientTimeline
     .filter(t => t.kind === 'intake')
-    .reduce((sum, t) => sum + t.value, 0)
+    .reduce((sum, t) => sum + ((t as any).valueMl ?? (t as any).value ?? 0), 0)
   
   const totalOutput = patientTimeline
     .filter(t => t.kind === 'output')
-    .reduce((sum, t) => sum + t.value, 0)
+    .reduce((sum, t) => sum + ((t as any).valueMl ?? (t as any).value ?? 0), 0)
   
   return {
     patientId,
