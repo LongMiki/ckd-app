@@ -20,11 +20,11 @@
 
 /* 顶部固定栏 - Frame 711 */
 .wm-top-header {
-  position: fixed;  /* 固定在顶部 */
+  position: sticky;  /* 固定在内容区顶部（随 page-content 滚动容器） */
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 390px;
+  left: 0;
+  transform: none;
+  width: 100%;
   min-height: 74px;
   height: 74px;
   background: #F3F6F8;
@@ -576,7 +576,7 @@
 }
 
 .wm-checkbox.wm-checked {
-  background: #46C761;
+  background: #2D5FFF;
   border: none;
 }
 
@@ -594,9 +594,11 @@
   line-height: 1.67;
   color: #000000;
   min-height: 20px;
-  width: 171px;
-  overflow: visible;
-  word-wrap: break-word;
+  flex: 1;
+  width: auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .wm-task-text.wm-completed {
@@ -883,15 +885,40 @@
   opacity: 0.8;
 }
 
-/* 响应式调整 */
-@media (max-width: 390px) {
+/* 响应式调整 - 移动端全屏适配 */
+@media (max-width: 430px) {
   .water-management-container {
     width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     border-radius: 0;
   }
   
-  .wm-top-header,
+  .water-management-content {
+    width: 100%;
+  }
+  
+  .wm-top-header {
+    width: 100%;
+    left: 0;
+    transform: none;
+  }
+  
   .wm-bottom-nav {
     width: 100%;
+  }
+  
+  .wm-scrollable-content {
+    width: 100%;
+  }
+  
+  .wm-chart-wrapper,
+  .wm-attention-section,
+  .wm-risk-section,
+  .wm-task-section {
+    max-width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
+    box-sizing: border-box;
   }
 }

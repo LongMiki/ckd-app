@@ -19,6 +19,8 @@ export type DataSource =
   | 'water_dispenser'  // 饮水机
   | 'camera'           // 拍照模块
   | 'urinal'           // 智能尿壶
+  | 'intake'           // 摄入设备（旧数据兼容）
+  | 'output'           // 智能马桶/出量设备（旧数据兼容）
   | 'manual'           // 手动记录
 
 /** GFR 分期（CKD 严重程度） */

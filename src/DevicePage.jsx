@@ -24,7 +24,7 @@ function DevicePage() {
   const drainDevices = [
     {
       id: 'B-01-1',
-      name: '智能尿壶 B-01',
+      name: '智能马桶 B-01',
       status: '在线',
       statusTone: 'online',
       battery: '电池 87%',
@@ -32,7 +32,7 @@ function DevicePage() {
     },
     {
       id: 'B-01-2',
-      name: '智能尿壶 B-01',
+      name: '智能马桶 B-01',
       status: '在线',
       statusTone: 'online',
       battery: '电池 92%',
@@ -40,7 +40,7 @@ function DevicePage() {
     },
     {
       id: 'B-01-3',
-      name: '智能尿壶 B-01',
+      name: '智能马桶 B-01',
       status: '离线',
       statusTone: 'offline',
       battery: '电池 12%（需充电）',
@@ -48,7 +48,7 @@ function DevicePage() {
     },
     {
       id: 'B-01-4',
-      name: '智能尿壶 B-01',
+      name: '智能马桶 B-01',
       status: '离线',
       statusTone: 'offline',
       battery: '电池 0%（需充电）',
@@ -56,7 +56,7 @@ function DevicePage() {
     },
     {
       id: 'B-01-5',
-      name: '智能尿壶 B-01',
+      name: '智能马桶 B-01',
       status: '在线',
       statusTone: 'online',
       battery: '电池 87%',

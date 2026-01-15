@@ -148,16 +148,16 @@ export function calculateCaregiverStatus(
  * 每日时间段划分
  */
 export const TIME_PERIODS = [
-  { start: 8,  end: 11, limit: 300, label: '8:00-11:00' },
-  { start: 11, end: 14, limit: 400, label: '11:00-14:00' },
-  { start: 14, end: 17, limit: 300, label: '14:00-17:00' },
-  { start: 17, end: 20, limit: 300, label: '17:00-20:00' },
+  { start: 6,  end: 10, limit: 500, label: '6:00-10:00' },
+  { start: 10, end: 14, limit: 600, label: '10:00-14:00' },
+  { start: 14, end: 18, limit: 600, label: '14:00-18:00' },
+  { start: 18, end: 22, limit: 400, label: '18:00-22:00' },
 ]
 
 /**
  * 累计上限（5个时间点）
  */
-export const CUMULATIVE_LIMITS = [0, 300, 700, 1000, 1300]
+export const CUMULATIVE_LIMITS = [0, 450, 1000, 1550, 1900]
 
 /**
  * 获取当前时间段
@@ -170,7 +170,7 @@ export function getCurrentTimePeriod() {
     }
   }
   // 不在时间段内，返回最近的
-  if (hour < 8) return TIME_PERIODS[0]
+  if (hour < TIME_PERIODS[0].start) return TIME_PERIODS[0]
   return TIME_PERIODS[TIME_PERIODS.length - 1]
 }
 

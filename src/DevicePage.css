@@ -243,15 +243,27 @@
   gap: 160px;
 }
 
-/* 响应式调整 */
-@media (max-width: 390px) {
+/* 响应式调整 - 移动端全屏适配 */
+@media (max-width: 430px) {
   .device-page-content {
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     border-radius: 0;
   }
 
   .dp-header {
-    width: 100vw;
+    width: 100%;
+  }
+  
+  .dp-body {
+    width: 100%;
+    padding: 0 12px;
+    box-sizing: border-box;
+  }
+  
+  .dp-header-content {
+    width: calc(100% - 24px);
+    max-width: 366px;
   }
 }

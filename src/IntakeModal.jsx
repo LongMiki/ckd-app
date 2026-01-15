@@ -40,7 +40,6 @@ function IntakeModal({ isOpen, onClose, patientName, patientList, onRecordIntake
       kind: 'intake',
       source: 'manual', // 护工手动记录
       time: recordTime,
-      sourceLabel: '护工手动记录',
       title: `喝了${selectedDrink.label}${notes ? ` · ${notes}` : ''}`,
       ago: '刚刚',
       valueText: `+ ${selectedDrink.volume}ml`,

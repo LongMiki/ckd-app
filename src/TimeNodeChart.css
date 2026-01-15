@@ -104,7 +104,7 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-end;
-  width: 20px;
+  width: 34px;
   padding-right: 5px;
   height: 140px;
   flex-shrink: 0;
@@ -117,6 +117,8 @@
   line-height: 1;
   color: #595959;
   text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 图表主体 */
@@ -165,7 +167,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 4px;
-  padding-left: 28px; /* 与 Y 轴对齐 */
+  padding-left: 42px; /* 与 Y 轴对齐 */
   padding-right: 4px;
 }
 

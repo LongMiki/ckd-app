@@ -19,6 +19,9 @@ function FamilySettingsPage({ appRole, onRoleChange, timeline = [] }) {
     return { inMl: totalIn, outMl: totalOut }
   }, [timeline])
 
+  const inMlInt = useMemo(() => Math.round(inMl || 0), [inMl])
+  const outMlInt = useMemo(() => Math.round(outMl || 0), [outMl])
+
   const profile = useMemo(() => {
     const inMlMax = 1200
     const outMlMax = 1200
@@ -80,7 +83,10 @@ function FamilySettingsPage({ appRole, onRoleChange, timeline = [] }) {
             <div className="fsp-metric-card">
               <div className="fsp-metric-text">
                 <div className="fsp-metric-label">喝了</div>
-                <div className="fsp-metric-value">{inMl} ml</div>
+                <div className="fsp-metric-value">
+                  <span className="fsp-metric-number">{inMlInt}</span>
+                  <span className="fsp-metric-unit">ml</span>
+                </div>
                 <div className="fsp-metric-sub">建议 {profile.inMlMax} ml</div>
               </div>
               <div className="fsp-metric-bar fsp-metric-bar--blue">
@@ -91,7 +97,10 @@ function FamilySettingsPage({ appRole, onRoleChange, timeline = [] }) {
             <div className="fsp-metric-card fsp-metric-card--out">
               <div className="fsp-metric-text">
                 <div className="fsp-metric-label">排出</div>
-                <div className="fsp-metric-value">{outMl} ml</div>
+                <div className="fsp-metric-value">
+                  <span className="fsp-metric-number">{outMlInt}</span>
+                  <span className="fsp-metric-unit">ml</span>
+                </div>
                 <div className="fsp-metric-sub">含活动估算</div>
               </div>
               <div className="fsp-metric-bar fsp-metric-bar--purple">

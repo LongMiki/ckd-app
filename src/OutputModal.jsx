@@ -40,7 +40,6 @@ function OutputModal({ isOpen, onClose, patientName, patientList, onRecordOutput
       kind: 'output',
       source: 'manual', // 护工手动记录
       time: recordTime,
-      sourceLabel: '护工手动记录',
       title: `排尿${notes ? ` · ${notes}` : ''}`,
       ago: '刚刚',
       valueText: `- ${selectedVolume.volume}ml`,

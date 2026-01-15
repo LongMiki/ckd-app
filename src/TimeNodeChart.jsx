@@ -1,28 +1,96 @@
 import React, { useState, useMemo } from 'react'
 import './TimeNodeChart.css'
 
-// 时间段配置 - 与 WaterManagement 保持一致
+// 时间段配置
 const TIME_PERIODS = [
-  { start: 8, end: 11, limit: 300, label: '08:00' },
-  { start: 11, end: 14, limit: 400, label: '11:00' },
-  { start: 14, end: 17, limit: 300, label: '14:00' },
-  { start: 17, end: 20, limit: 300, label: '17:00' },
-  { end: 20, label: '20:00' } // 最后一个时间点
+  { start: 6, end: 10, label: '06:00' },
+  { start: 10, end: 14, label: '10:00' },
+  { start: 14, end: 18, label: '14:00' },
+  { start: 18, end: 22, label: '18:00' },
+  { end: 22, label: '22:00' },
 ]
 
-// 累计上限：每个时间点的累计摄入/排出上限
-// 08:00: 0, 11:00: 300, 14:00: 700, 17:00: 1000, 20:00: 1300
-const CUMULATIVE_LIMITS = [0, 300, 700, 1000, 1300]
+const BASE_PERIOD_INTAKE = [450, 550, 550, 350]
+const BASE_PERIOD_OUTPUT = [350, 450, 450, 350]
+const BASE_TOTAL_INTAKE = BASE_PERIOD_INTAKE.reduce((s, x) => s + x, 0)
+const BASE_TOTAL_OUTPUT = BASE_PERIOD_OUTPUT.reduce((s, x) => s + x, 0)
 
-// Y轴刻度
-const Y_TICKS = [400, 350, 300, 250, 200, 150, 100, 50, 0]
+// 默认 Y 轴最小上限
+const MIN_Y_MAX = 400
 
 function TimeNodeChart({ 
   patientTimeline = [], 
   intakeData = null, // 可选：直接传入摄入数据 [0, 120, 280, 450, 600]
-  outputData = null  // 可选：直接传入排出数据 [0, 100, 250, 400, 550]
+  outputData = null,  // 可选：直接传入排出数据 [0, 100, 250, 400, 550]
+  intakeGoalMl = null,
+  outputGoalMl = null
 }) {
   const [activeMode, setActiveMode] = useState('intake') // 'intake' | 'output'
+
+  // 基线参考：分时段上限（不累计、不缩放）
+  const baselineLimits = useMemo(() => {
+    const base = activeMode === 'intake' ? BASE_PERIOD_INTAKE : BASE_PERIOD_OUTPUT
+    const p1 = Math.round(base[0] || 0)
+    const p2 = Math.round(base[1] || 0)
+    const p3 = Math.round(base[2] || 0)
+    const p4 = Math.round(base[3] || 0)
+    return [0, p1, p2, p3, p4]
+  }, [activeMode, intakeGoalMl, outputGoalMl])
+
+  const safeParseDate = (value) => {
+    if (!value) return null
+    if (value instanceof Date) return isNaN(value.getTime()) ? null : value
+    if (typeof value === 'number') {
+      const d = new Date(value)
+      return isNaN(d.getTime()) ? null : d
+    }
+    if (typeof value === 'string') {
+      const normalized = value
+        .replace(' ', 'T')
+        .replace(/\.(\d{3})\d+(Z)?$/, '.$1$2')
+      const d = new Date(normalized)
+      if (!isNaN(d.getTime())) return d
+      const m = value.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/)
+      if (m) {
+        const now = new Date()
+        const hh = Number(m[1])
+        const mm = Number(m[2])
+        const ss = Number(m[3] || 0)
+        const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, ss)
+        return isNaN(d2.getTime()) ? null : d2
+      }
+    }
+    return null
+  }
+
+  const getEntryDate = (entry) => {
+    // 优先 timestamp，其次 time
+    const d = safeParseDate(entry?.timestamp) || safeParseDate(entry?.time)
+    return d
+  }
+
+  const normalizeKind = (entry) => {
+    if (entry?.kind === 'intake' || entry?.kind === 'output') return entry.kind
+    // 兼容仅有 source 的情况
+    if (entry?.source === 'intake' || entry?.source === 'output') return entry.source
+    if (entry?.source === 'water_dispenser' || entry?.source === 'camera') return 'intake'
+    if (entry?.source === 'urinal') return 'output'
+    // 兜底：根据标题/文案判断
+    const title = String(entry?.title || '')
+    const valueText = String(entry?.valueText || '')
+    if (valueText.trim().startsWith('-')) return 'output'
+    if (valueText.trim().startsWith('+')) return 'intake'
+    if (title.includes('排') || title.includes('尿')) return 'output'
+    if (
+      title.includes('喝') ||
+      title.includes('饮') ||
+      title.includes('上传') ||
+      title.includes('早餐') ||
+      title.includes('午餐') ||
+      title.includes('晚餐')
+    ) return 'intake'
+    return null
+  }
 
   // 计算每个时间点的实际累计值
   const chartData = useMemo(() => {
@@ -34,87 +102,88 @@ function TimeNodeChart({
       }
     }
 
-    // 从 timeline 计算每个时间段结束时的累计值
-    const intakeByPeriod = [0, 0, 0, 0, 0] // 5个时间点的累计摄入
-    const outputByPeriod = [0, 0, 0, 0, 0] // 5个时间点的累计排出
+    const nodes = [
+      { h: 6, m: 0 },
+      { h: 10, m: 0 },
+      { h: 14, m: 0 },
+      { h: 18, m: 0 },
+      { h: 22, m: 0 },
+    ]
 
-    let cumulativeIntake = 0
-    let cumulativeOutput = 0
+    const parsed = (patientTimeline || [])
+      .map((e) => {
+        const d = getEntryDate(e)
+        const kind = normalizeKind(e)
+        const raw = e?.valueMl ?? e?.value ?? 0
+        const value = Math.round(Number(raw) || 0)
+        return { ...e, __date: d, __value: value, __kind: kind }
+      })
+      .filter((e) => e.__date && !isNaN(e.__date.getTime()) && e.__kind)
+      .sort((a, b) => a.__date.getTime() - b.__date.getTime())
 
-    // 解析时间字符串为小时数
-    const parseTimeToHour = (timeStr) => {
-      if (!timeStr) return 0
-      const [h] = timeStr.split(':').map(Number)
-      return h
+    const dayBase = parsed[0]?.__date ? parsed[0].__date : new Date()
+    const nodeDates = nodes.map(n => new Date(dayBase.getFullYear(), dayBase.getMonth(), dayBase.getDate(), n.h, n.m, 0, 0))
+
+    const now = new Date()
+    const lastVisibleNodeIndex = Math.max(
+      0,
+      nodeDates.reduce((acc, nd, idx) => (nd.getTime() <= now.getTime() ? idx : acc), 0)
+    )
+
+    const getPeriodIndex = (date) => {
+      const hour = date.getHours() + date.getMinutes() / 60
+      if (hour >= 6 && hour < 10) return 0
+      if (hour >= 10 && hour < 14) return 1
+      if (hour >= 14 && hour < 18) return 2
+      if (hour >= 18 && hour < 22) return 3
+      return null
     }
 
-    // 按时间排序 timeline
-    const sortedTimeline = [...patientTimeline].sort((a, b) => {
-      const hourA = parseTimeToHour(a.time)
-      const hourB = parseTimeToHour(b.time)
-      return hourA - hourB
-    })
+    const buildSeries = (kind) => {
+      const byKind = parsed.filter(e => e.__kind === kind)
+      const sums = [0, 0, 0, 0] // 每个时段的独立累计
 
-    // 遍历 timeline，累计到对应时间段
-    sortedTimeline.forEach(entry => {
-      const hour = parseTimeToHour(entry.time)
-      const value = entry.valueMl ?? 0
-
-      if (entry.kind === 'intake') {
-        cumulativeIntake += value
-      } else if (entry.kind === 'output') {
-        cumulativeOutput += value
+      let lastEventPeriodIndex = null
+      for (const e of byKind) {
+        const pIdx = getPeriodIndex(e.__date)
+        if (pIdx == null) continue
+        sums[pIdx] += e.__value
+        lastEventPeriodIndex = pIdx
       }
 
-      // 更新对应时间点之后的所有累计值
-      TIME_PERIODS.forEach((period, idx) => {
-        if (idx === 0) return // 08:00 时间点始终为 0
-        const periodEndHour = period.start || TIME_PERIODS[idx - 1]?.end || 8
-        if (hour < periodEndHour) {
-          // 这个条目在该时间点之前，更新该时间点的值
-        }
-      })
-    })
-
-    // 简化：根据当前小时计算每个时间点的累计值
-    const now = new Date()
-    const currentHour = now.getHours()
-
-    // 模拟数据：基于 timeline 生成每个时间点的累计值
-    let runningIntake = 0
-    let runningOutput = 0
-
-    TIME_PERIODS.forEach((period, idx) => {
-      if (idx === 0) {
-        intakeByPeriod[0] = 0
-        outputByPeriod[0] = 0
-        return
+      // 没有任何事件：仅保留 06:00 的 0，其余不展示
+      if (lastEventPeriodIndex == null) {
+        return [0, null, null, null, null]
       }
 
-      const periodStart = TIME_PERIODS[idx - 1].start
-      const periodEnd = period.start || TIME_PERIODS[idx - 1].end
-
-      // 统计该时间段内的所有条目
-      sortedTimeline.forEach(entry => {
-        const hour = parseTimeToHour(entry.time)
-        if (hour >= periodStart && hour < periodEnd) {
-          if (entry.kind === 'intake') {
-            runningIntake += entry.valueMl ?? 0
-          } else if (entry.kind === 'output') {
-            runningOutput += entry.valueMl ?? 0
-          }
-        }
-      })
-
-      intakeByPeriod[idx] = runningIntake
-      outputByPeriod[idx] = runningOutput
-    })
+      // 分时段曲线：节点 i(1..4) 对应该时段的量
+      // 关键点：即使当前时间未到 22:00，只要 18-22 时段已有事件（如 19:45），也要渲染 22:00 节点
+      const series = [0, sums[0], sums[1], sums[2], sums[3]]
+      const lastEventNodeIndex = Math.min(4, Math.max(1, lastEventPeriodIndex + 1))
+      for (let i = lastEventNodeIndex + 1; i < series.length; i++) series[i] = null
+      return series
+    }
 
     return {
-      intake: intakeByPeriod,
-      output: outputByPeriod
+      intake: buildSeries('intake'),
+      output: buildSeries('output'),
     }
   }, [patientTimeline, intakeData, outputData])
+
+  const yAxis = useMemo(() => {
+    const baselineMax = Math.max(...baselineLimits.map(v => Number(v) || 0), 0)
+    const maxActual = Math.max(
+      ...((chartData?.intake || []).filter(v => v != null).map(v => Number(v) || 0)),
+      ...((chartData?.output || []).filter(v => v != null).map(v => Number(v) || 0)),
+      0
+    )
+    const rawMax = Math.max(MIN_Y_MAX, baselineMax, maxActual)
+    // 使用 50ml 的粒度生成 9 条刻度线（8 段）
+    const step = Math.max(50, Math.ceil(rawMax / 8 / 50) * 50)
+    const maxY = step * 8
+    const ticks = Array.from({ length: 9 }, (_, i) => maxY - i * step)
+    return { maxY, ticks }
+  }, [chartData, baselineLimits])
 
   // 图表尺寸配置 - 增加 padding 防止溢出
   const chartWidth = 280
@@ -124,8 +193,9 @@ function TimeNodeChart({
 
   // 计算 Y 值对应的像素位置
   const yScale = (value) => {
-    const maxY = 400
-    return paddingY + (chartHeight - 2 * paddingY) * (1 - value / maxY)
+    const maxY = yAxis.maxY
+    const v = Math.max(0, Math.min(maxY, Number(value) || 0))
+    return paddingY + (chartHeight - 2 * paddingY) * (1 - v / maxY)
   }
 
   // 计算 X 值对应的像素位置（5个时间点均匀分布）
@@ -135,9 +205,20 @@ function TimeNodeChart({
 
   // 生成实际数据曲线路径（平滑曲线）
   const generateCurvePath = (data) => {
-    if (data.length < 2) return ''
+    const usable = (data || []).filter(v => v != null)
+    if (usable.length < 2) return ''
+
+    // 只支持末尾为 null 的截断（用于“后续无数据则不显示”）
+    const lastIdx = (() => {
+      for (let i = data.length - 1; i >= 0; i--) {
+        if (data[i] != null) return i
+      }
+      return -1
+    })()
+    if (lastIdx < 1) return ''
+    const sliced = data.slice(0, lastIdx + 1)
     
-    const points = data.map((value, idx) => ({
+    const points = sliced.map((value, idx) => ({
       x: xScale(idx),
       y: yScale(value)
     }))
@@ -160,8 +241,16 @@ function TimeNodeChart({
   const generateAreaPath = (data) => {
     const curvePath = generateCurvePath(data)
     if (!curvePath) return ''
-    
-    const lastX = xScale(data.length - 1)
+
+    const lastIdx = (() => {
+      for (let i = data.length - 1; i >= 0; i--) {
+        if (data[i] != null) return i
+      }
+      return -1
+    })()
+    if (lastIdx < 0) return ''
+
+    const lastX = xScale(lastIdx)
     const firstX = xScale(0)
     const bottomY = chartHeight - paddingY
     
@@ -172,20 +261,20 @@ function TimeNodeChart({
   const generateBaselinePath = () => {
     // 基线是阶梯式的：每个时间段有不同的上限
     // 简化为平滑曲线连接累计上限点
-    const baselineData = CUMULATIVE_LIMITS.map(v => Math.min(v, 400)) // 限制在Y轴范围内
+    const baselineData = baselineLimits.map(v => Math.min(v, yAxis.maxY))
     return generateCurvePath(baselineData)
   }
 
   // 生成基线填充区域
   const generateBaselineAreaPath = () => {
-    const baselineData = CUMULATIVE_LIMITS.map(v => Math.min(v, 400))
+    const baselineData = baselineLimits.map(v => Math.min(v, yAxis.maxY))
     return generateAreaPath(baselineData)
   }
 
   // 当前模式的数据
   const currentData = activeMode === 'intake' ? chartData.intake : chartData.output
-  
-  // 颜色配置
+
+  // ... (rest of the code remains the same)
   const colors = activeMode === 'intake' 
     ? {
         bg: '#e9f0f9',
@@ -245,7 +334,7 @@ function TimeNodeChart({
       <div className="tnc-chart-container">
         {/* Y轴刻度 */}
         <div className="tnc-y-axis">
-          {Y_TICKS.map((tick, idx) => (
+          {yAxis.ticks.map((tick, idx) => (
             <span key={idx} className="tnc-y-tick">{tick}</span>
           ))}
         </div>
@@ -271,7 +360,7 @@ function TimeNodeChart({
             </defs>
 
             {/* 水平网格线 */}
-            {Y_TICKS.map((tick, idx) => (
+            {yAxis.ticks.map((tick, idx) => (
               <line
                 key={idx}
                 x1="0"
@@ -315,11 +404,11 @@ function TimeNodeChart({
             />
 
             {/* 基线数据点 */}
-            {CUMULATIVE_LIMITS.map((value, idx) => (
+            {baselineLimits.map((value, idx) => (
               <circle
                 key={`baseline-${idx}`}
                 cx={xScale(idx)}
-                cy={yScale(Math.min(value, 400))}
+                cy={yScale(Math.min(value, yAxis.maxY))}
                 r="4"
                 fill="white"
                 stroke={colors.baseline}
@@ -329,18 +418,21 @@ function TimeNodeChart({
             ))}
 
             {/* 实际数据点 */}
-            {currentData.map((value, idx) => (
-              <circle
-                key={`data-${idx}`}
-                cx={xScale(idx)}
-                cy={yScale(value)}
-                r="4"
-                fill="white"
-                stroke={colors.primary}
-                strokeWidth="2"
-                className="tnc-data-dot"
-              />
-            ))}
+            {currentData.map((value, idx) => {
+              if (value == null) return null
+              return (
+                <circle
+                  key={`data-${idx}`}
+                  cx={xScale(idx)}
+                  cy={yScale(value)}
+                  r="4"
+                  fill="white"
+                  stroke={colors.primary}
+                  strokeWidth="2"
+                  className="tnc-data-dot"
+                />
+              )
+            })}
           </svg>
         </div>
       </div>

@@ -31,14 +31,14 @@ function generateAISummary(patient) {
     assessment = '水分平衡，整体正常'
   }
   
-  return `AI生成简要报告：${name}今天${assessment}`
+  return `${name}今天${assessment}`
 }
 
 // 图片资源 URL（从 Figma 设计稿获取）
 const imgAdd = '/figma/group.svg'
 const imgMinus = '/figma/soup.svg'
 
-function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, setPatients }) {
+function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, setPatients, aiSummary = '' }) {
   const [selectedFilter, setSelectedFilter] = useState('全部')
   const [intakeModalOpen, setIntakeModalOpen] = useState(false)
   const [outputModalOpen, setOutputModalOpen] = useState(false)
@@ -47,6 +47,16 @@ function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, s
   // 获取状态颜色
   const getStatusColor = (status) => {
     return PATIENT_STATUS[status]?.color || '#46C761'
+  }
+
+  const getDisplayAISummary = (patient) => {
+    if (patient?.aiSummary?.overall) {
+      return String(patient.aiSummary.overall)
+    }
+    if (String(patient?.id) === 'current_patient' && aiSummary) {
+      return aiSummary.replace(/^AI生成简要报告[：:]\s*/, '')
+    }
+    return generateAISummary(patient)
   }
 
   const filters = [
@@ -154,23 +164,35 @@ function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, s
 
                 <div className="pp-card-bottom">
                   <div className="pp-ring-wrap">
+                    {(() => {
+                      const inMl = Math.round(p.inMl ?? 0)
+                      const outMl = Math.round(p.outMl ?? 0)
+                      const total = inMl + outMl
+                      const intakePercent = total > 0 ? Math.round((inMl / total) * 100) : 50
+                      const outputPercent = total > 0 ? Math.round((outMl / total) * 100) : 50
+                      return (
                     <WaterRingChartMini 
-                      intakePercent={p.inPercent} 
-                      outputPercent={p.outPercent} 
+                      intakePercent={intakePercent} 
+                      outputPercent={outputPercent} 
                       size={90}
                       uniqueId={`patient-${p.id}`}
                       statusColor={getStatusColor(p.status)}
                     />
+                      )
+                    })()}
                   </div>
 
                   <div className="pp-card-info">
-                    <div className="pp-ai-text">{generateAISummary(p)}</div>
+                    <div className="pp-ai-text">{getDisplayAISummary(p)}</div>
 
                     <div className="pp-metrics">
                       <div className="pp-metric-box">
                         <div className="pp-metric-row">
                           <div className="pp-metric-label">摄入量</div>
-                          <div className="pp-metric-value">{p.inMl ?? 0} ml</div>
+                          <div className="pp-metric-value">
+                            <span className="pp-metric-number">{Math.round(p.inMl ?? 0)}</span>
+                            <span className="pp-metric-unit">ml</span>
+                          </div>
                         </div>
                         <div className="pp-meter-bg pp-meter-bg-blue">
                           <div className="pp-meter-fill pp-meter-fill-blue" style={{ width: `${(p.inMlMax ?? 0) > 0 ? Math.round(((p.inMl ?? 0) / (p.inMlMax ?? 1)) * 100) : 0}%` }} />
@@ -180,7 +202,10 @@ function PatientPage({ activeTab, setActiveTab, onOpenPatientDetail, patients, s
                       <div className="pp-metric-box">
                         <div className="pp-metric-row">
                           <div className="pp-metric-label">排出量</div>
-                          <div className="pp-metric-value">{p.outMl ?? 0} ml</div>
+                          <div className="pp-metric-value">
+                            <span className="pp-metric-number">{Math.round(p.outMl ?? 0)}</span>
+                            <span className="pp-metric-unit">ml</span>
+                          </div>
                         </div>
                         <div className="pp-meter-bg pp-meter-bg-purple">
                           <div className="pp-meter-fill pp-meter-fill-purple" style={{ width: `${(p.outMlMax ?? 0) > 0 ? Math.round(((p.outMl ?? 0) / (p.outMlMax ?? 1)) * 100) : 0}%` }} />

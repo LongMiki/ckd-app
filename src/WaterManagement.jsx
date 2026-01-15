@@ -5,13 +5,13 @@ import WaterParticles from './WaterParticles'
 import WaterRingChart from './WaterRingChart'
 import FlowParticles from './FlowParticles'
 import RiskDoubleRing from './RiskDoubleRing'
-import { getCurrentTimePeriod, calculateCaregiverStatus, STATUS_COLORS } from './data/thresholds'
+import { getCurrentTimePeriod, calculateCaregiverStatus, STATUS_COLORS, TIME_PERIODS } from './data/thresholds'
 
 // 患者状态配置
 const PATIENT_STATUS = {
   emergency: { key: 'emergency', label: '严重', color: '#F43859' },
   risk: { key: 'risk', label: '注意', color: '#FA8534' },
-  normal: { key: 'normal', label: '正常', color: '#46C761' }
+  normal: { key: 'normal', label: '安全', color: '#46C761' }
 }
 
 // 图片资源 URL
@@ -29,6 +29,11 @@ function WaterManagement({ activeTab, setActiveTab, onOpenPatientDetail, patient
   
   // 当前时间段
   const currentPeriod = getCurrentTimePeriod()
+
+  const BASE_PERIOD_INTAKE = [450, 550, 550, 350]
+  const BASE_PERIOD_OUTPUT = [350, 450, 450, 350]
+  const BASE_TOTAL_INTAKE = BASE_PERIOD_INTAKE.reduce((s, x) => s + x, 0)
+  const BASE_TOTAL_OUTPUT = BASE_PERIOD_OUTPUT.reduce((s, x) => s + x, 0)
   
   // 计算各状态患者数量
   const emergencyCount = patients.filter(p => p.status === 'emergency').length
@@ -38,21 +43,88 @@ function WaterManagement({ activeTab, setActiveTab, onOpenPatientDetail, patient
   const overallStatus = calculateCaregiverStatus(emergencyCount, riskCount)
   const overallStatusColor = STATUS_COLORS[overallStatus] || '#46C761'
 
+  const safeParseDate = (value) => {
+    if (!value) return null
+    if (value instanceof Date) return isNaN(value.getTime()) ? null : value
+    if (typeof value === 'number') {
+      const d = new Date(value)
+      return isNaN(d.getTime()) ? null : d
+    }
+    if (typeof value === 'string') {
+      const normalized = value
+        .replace(' ', 'T')
+        .replace(/\.(\d{3})\d+(Z)?$/, '.$1$2')
+      const d = new Date(normalized)
+      if (!isNaN(d.getTime())) return d
+      const m = value.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/)
+      if (m) {
+        const now = new Date()
+        const hh = Number(m[1])
+        const mm = Number(m[2])
+        const ss = Number(m[3] || 0)
+        const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, ss)
+        return isNaN(d2.getTime()) ? null : d2
+      }
+    }
+    return null
+  }
+
+  const getEntryDate = (entry) => {
+    const d = safeParseDate(entry?.timestamp) || safeParseDate(entry?.time)
+    return d
+  }
+
+  const normalizeKind = (entry) => {
+    if (entry?.kind === 'intake' || entry?.kind === 'output') return entry.kind
+    if (entry?.source === 'intake' || entry?.source === 'output') return entry.source
+    if (entry?.source === 'water_dispenser' || entry?.source === 'camera') return 'intake'
+    if (entry?.source === 'urinal') return 'output'
+    return null
+  }
+
   // 单个患者在当前时间段的摄入/排出占上限百分比（用于风险排序双环）
   // 外环 = 该时间段摄入量占上限比例
   // 内环 = 该时间段排出量占上限比例
   const getPatientPercents = (patient) => {
-    const periodLimit = currentPeriod.limit
-    // 这里暂时使用患者当日数据的一部分模拟当前时间段数据
-    // 实际应该从 patient.periodIntake / patient.periodOutput 获取
-    const periodIntake = Math.round(patient.inMl * 0.3) // 模拟当前时间段摄入
-    const periodOutput = Math.round(patient.outMl * 0.3) // 模拟当前时间段排出
+    const periodIndex = Math.max(
+      0,
+      TIME_PERIODS.findIndex(p => p.start === currentPeriod.start && p.end === currentPeriod.end)
+    )
+
+    const periodLimitIntake = Math.max(1, Math.round(BASE_PERIOD_INTAKE[periodIndex] || BASE_PERIOD_INTAKE[0]))
+    const periodLimitOutput = Math.max(1, Math.round(BASE_PERIOD_OUTPUT[periodIndex] || BASE_PERIOD_OUTPUT[0]))
+
+    const timeline = patient?.timeline || []
+    const parsed = timeline
+      .map((e) => {
+        const d = getEntryDate(e)
+        const kind = normalizeKind(e)
+        const raw = e?.valueMl ?? e?.value ?? 0
+        const value = Math.round(Number(raw) || 0)
+        return { __date: d, __kind: kind, __value: value }
+      })
+      .filter(e => e.__date && e.__kind)
+      .sort((a, b) => a.__date.getTime() - b.__date.getTime())
+
+    const base = parsed[0]?.__date || new Date()
+    const periodStart = new Date(base.getFullYear(), base.getMonth(), base.getDate(), currentPeriod.start, 0, 0, 0)
+    const periodEnd = new Date(base.getFullYear(), base.getMonth(), base.getDate(), currentPeriod.end, 0, 0, 0)
+
+    let periodIntake = 0
+    let periodOutput = 0
+    for (const e of parsed) {
+      const t = e.__date.getTime()
+      if (t < periodStart.getTime()) continue
+      if (t >= periodEnd.getTime()) break
+      if (e.__kind === 'intake') periodIntake += e.__value
+      if (e.__kind === 'output') periodOutput += e.__value
+    }
     
-    const intakePercent = periodLimit > 0
-      ? Math.min(100, Math.round((periodIntake / periodLimit) * 100))
+    const intakePercent = periodLimitIntake > 0
+      ? Math.min(100, Math.round((periodIntake / periodLimitIntake) * 100))
       : 0
-    const outputPercent = periodLimit > 0
-      ? Math.min(100, Math.round((periodOutput / periodLimit) * 100))
+    const outputPercent = periodLimitOutput > 0
+      ? Math.min(100, Math.round((periodOutput / periodLimitOutput) * 100))
       : 0
     return { intakePercent, outputPercent }
   }
@@ -86,12 +158,72 @@ function WaterManagement({ activeTab, setActiveTab, onOpenPatientDetail, patient
     : 0
   const averageNetText = `${averageNetMl >= 0 ? '+' : ''}${averageNetMl} mL`
   
+  // ========== 动态生成「整体情况」文案 ==========
+  // 计算喝水异常的患者数（摄入量超过上限的80%视为偏多，低于30%视为偏少）
+  const intakeAbnormal = patients.reduce((acc, p) => {
+    const ratio = p.inMlMax > 0 ? (p.inMl || 0) / p.inMlMax : 0
+    if (ratio > 0.8) {
+      acc.tooMuch++
+      acc.tooMuchNames.push(p.name || p.fullName || '患者')
+    } else if (ratio < 0.3 && (p.inMl || 0) > 0) {
+      acc.tooLittle++
+      acc.tooLittleNames.push(p.name || p.fullName || '患者')
+    }
+    return acc
+  }, { tooMuch: 0, tooLittle: 0, tooMuchNames: [], tooLittleNames: [] })
+  
+  // 计算排尿异常的患者数（排出量超过上限的80%视为偏多，低于30%视为偏少）
+  const outputAbnormal = patients.reduce((acc, p) => {
+    const ratio = p.outMlMax > 0 ? (p.outMl || 0) / p.outMlMax : 0
+    if (ratio > 0.8) {
+      acc.tooMuch++
+      acc.tooMuchNames.push(p.name || p.fullName || '患者')
+    } else if (ratio < 0.3 && (p.outMl || 0) > 0) {
+      acc.tooLittle++
+      acc.tooLittleNames.push(p.name || p.fullName || '患者')
+    }
+    return acc
+  }, { tooMuch: 0, tooLittle: 0, tooMuchNames: [], tooLittleNames: [] })
+  
+  // 生成整体情况描述
+  const getOverallDescription = () => {
+    // 整体状态文案
+    let statusText = '整体情况良好'
+    if (overallStatus === 'emergency') {
+      statusText = '整体情况紧急'
+    } else if (overallStatus === 'risk') {
+      statusText = '整体情况需注意'
+    }
+    
+    // 异常情况文案
+    const abnormalParts = []
+    if (intakeAbnormal.tooMuch > 0) {
+      abnormalParts.push(intakeAbnormal.tooMuch === 1 ? `${intakeAbnormal.tooMuchNames[0]}喝水偏多` : `${intakeAbnormal.tooMuch}位喝水偏多`)
+    }
+    if (intakeAbnormal.tooLittle > 0) {
+      abnormalParts.push(intakeAbnormal.tooLittle === 1 ? `${intakeAbnormal.tooLittleNames[0]}喝水偏少` : `${intakeAbnormal.tooLittle}位喝水偏少`)
+    }
+    if (outputAbnormal.tooMuch > 0) {
+      abnormalParts.push(outputAbnormal.tooMuch === 1 ? `${outputAbnormal.tooMuchNames[0]}排尿偏多` : `${outputAbnormal.tooMuch}位排尿偏多`)
+    }
+    if (outputAbnormal.tooLittle > 0) {
+      abnormalParts.push(outputAbnormal.tooLittle === 1 ? `${outputAbnormal.tooLittleNames[0]}排尿偏少` : `${outputAbnormal.tooLittle}位排尿偏少`)
+    }
+    
+    if (abnormalParts.length === 0) {
+      return statusText
+    }
+    return `${statusText}，${abnormalParts.join('，')}`
+  }
+  
+  const overallDescription = getOverallDescription()
+  
   // 任务列表数据
   const [tasks, setTasks] = useState([
-    { id: 1, text: '时间-李阿姨早餐水分记录', completed: true },
-    { id: 2, text: '时间-李阿姨早餐水分记录', completed: false },
-    { id: 3, text: '时间-李阿姨早餐水分记录', completed: false },
-    { id: 4, text: '时间-李阿姨早餐水分记录', completed: false }
+    { id: 1, text: '08:10 李阿姨 记录早餐饮水量', completed: true },
+    { id: 2, text: '10:30 王叔叔 核对拍照上传摄入估算', completed: false },
+    { id: 3, text: '14:20 张爷爷 记录下午饮水机入量', completed: false },
+    { id: 4, text: '19:05 陈奶奶 记录尿壶排出量与尿色', completed: false }
   ])
 
   // 从localStorage获取用户数据
@@ -196,7 +328,7 @@ function WaterManagement({ activeTab, setActiveTab, onOpenPatientDetail, patient
         <div className="wm-attention-section">
           <div className="wm-attention-content">
             <h3 className="wm-attention-title">{needAttentionCount}位需要关注</h3>
-            <p className="wm-attention-desc">整体情况可以，1位喝水偏多，1位排尿偏少</p>
+            <p className="wm-attention-desc">{overallDescription}</p>
           </div>
           
           {/* 水分统计卡片 */}

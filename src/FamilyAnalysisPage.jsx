@@ -21,37 +21,13 @@ const imgIconPencil = '/icons/PencilSimple.svg'
 
 const imgFoodThumb = '/figma/analysis-food-thumb.png'
 
-function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline }) {
+function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline, patientData = null }) {
   const profile = useMemo(() => {
-    const fallback = {
-      name: '王某某',
-      subtitle: 'GFR Ⅰ期 60kg 依从性良好',
+    return {
+      name: patientData?.name || '王某某',
+      subtitle: patientData?.metaFull || patientData?.meta || 'GFR Ⅰ期 60kg 依从性良好',
     }
-
-    const raw = localStorage.getItem('patientData')
-    if (!raw) return fallback
-
-    try {
-      const data = JSON.parse(raw)
-      // 兼容新旧字段名：新格式 patient_name / is_ckd_patient / gfr_stage
-      const name = (data?.patient_name || data?.patientName) && (data?.patient_name || data?.patientName) !== '未填写' 
-        ? (data?.patient_name || data?.patientName) 
-        : fallback.name
-
-      const roman = { 1: 'Ⅰ', 2: 'Ⅱ', 3: 'Ⅲ', 4: 'Ⅳ', 5: 'Ⅴ' }
-      const isCKD = data?.is_ckd_patient ?? data?.isCKDPatient
-      const gfrStage = data?.gfr_stage ?? data?.gfrStage
-      const gfr = isCKD && gfrStage ? `GFR ${roman[gfrStage] || gfrStage}期` : 'GFR'
-      const weight = data?.weight && data.weight !== '未填写' ? `${data.weight}kg` : '60kg'
-
-      return {
-        name,
-        subtitle: `${gfr} ${weight} 依从性良好`,
-      }
-    } catch {
-      return fallback
-    }
-  }, [])
+  }, [patientData])
 
   const [activeFilter, setActiveFilter] = useState('all')
   const [expandedId, setExpandedId] = useState(null)
@@ -70,22 +46,113 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline }) {
     []
   )
 
-  // 使用从props传入的timeline，格式化用于显示
+  const safeParseDate = (value) => {
+    if (!value) return null
+    if (value instanceof Date) return isNaN(value.getTime()) ? null : value
+    if (typeof value === 'number') {
+      const d = new Date(value)
+      return isNaN(d.getTime()) ? null : d
+    }
+    if (typeof value === 'string') {
+      const normalized = value.replace(' ', 'T').replace(/\.(\d{3})\d+(Z)?$/, '.$1$2')
+      const d = new Date(normalized)
+      if (!isNaN(d.getTime())) return d
+      const m = value.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/)
+      if (m) {
+        const now = new Date()
+        const hh = Number(m[1])
+        const mm = Number(m[2])
+        const ss = Number(m[3] || 0)
+        const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, ss)
+        return isNaN(d2.getTime()) ? null : d2
+      }
+    }
+    return null
+  }
+
+  const getTimeText = (item) => {
+    if (item?.time) return String(item.time)
+    const d = safeParseDate(item?.timestamp)
+    if (!d) return ''
+    const hh = String(d.getHours()).padStart(2, '0')
+    const mm = String(d.getMinutes()).padStart(2, '0')
+    return `${hh}:${mm}`
+  }
+
+  const getPeriodLabel = (item) => {
+    const d = safeParseDate(item?.timestamp) || safeParseDate(item?.time)
+    if (!d) return ''
+    const hour = d.getHours() + d.getMinutes() / 60
+    if (hour >= 6 && hour < 10) return '早上'
+    if (hour >= 10 && hour < 14) return '中午'
+    if (hour >= 14 && hour < 18) return '下午'
+    if (hour >= 18 && hour < 22) return '晚上'
+    return ''
+  }
+
+  const getSourceText = (source) => {
+    if (source === 'water_dispenser') return '饮水机'
+    if (source === 'camera') return '拍照上传'
+    if (source === 'urinal') return '尿壶'
+    if (source === 'manual') return '手动'
+    if (source === 'intake') return '摄入'
+    if (source === 'output') return '排出'
+    return ''
+  }
+
+  // 使用从props传入的timeline，格式化用于显示（严格按 types.ts 字段）
   const timelineItems = useMemo(
-    () => timeline.map(item => ({
-      ...item,
-      time: item.sourceLabel ? `${item.time} ${item.sourceLabel}` : item.time,
-      valueText: item.kind === 'output' ? `- ${item.valueMl}ml` : `+ ${item.valueMl}ml`,
-      // 为汤类条目添加展开详情（示例）
-      expandable: item.title?.includes('汤'),
-      expand: item.title?.includes('汤') ? {
-        confidence: '置信度：82%',
-        observe: '检测到午餐时间端的食物摄入，图像识别为高水分汤羹类。',
-        riskA: `推测就餐摄入约${item.valueMl}ml`,
-        riskB: '此次行为可能导致水分积累上升',
-        sync: '数据同步：1分钟前',
-      } : undefined,
-    })),
+    () => timeline.map((item) => {
+      const isCamera = item.source === 'camera'
+      const isUrinal = item.source === 'urinal'
+      const timeText = getTimeText(item)
+      const periodLabel = isCamera ? getPeriodLabel(item) : ''
+      const sourceText = getSourceText(item.source)
+
+      const ai = item.aiRecognition || null
+      const cameraValue = ai?.estimatedWater ?? item.valueMl ?? item.value ?? 0
+      const valueRaw = isCamera ? cameraValue : (item.valueMl ?? item.value ?? 0)
+      const valueText = item.kind === 'output' ? `- ${valueRaw}ml` : `+ ${valueRaw}ml`
+
+      const title = isCamera
+        ? (ai?.foodType || item.title)
+        : (isUrinal && item.urineColor
+          ? `排尿 · ${item.urineColor}`
+          : item.title)
+
+      const timeDisplay = isCamera
+        ? `${timeText}${periodLabel ? ` ${periodLabel}` : ''} ${sourceText || '拍照上传'}`.trim()
+        : `${timeText}${sourceText ? ` ${sourceText}` : ''}`.trim()
+
+      const riskB = (() => {
+        if (!ai) return '风险评估：暂无'
+        if (ai.hasRisk) {
+          const rf = Array.isArray(ai.riskFactors) ? ai.riskFactors.filter(Boolean) : []
+          return rf.length > 0 ? `风险评估：${rf.join('、')}` : '风险评估：存在风险'
+        }
+        return '风险评估：未发现明显风险'
+      })()
+
+      return {
+        ...item,
+        title,
+        time: timeDisplay,
+        valueText,
+        ago: item.ago || item.timeAgo || '刚刚',
+        expandable: isCamera && (ai || item.imageUrl),
+        expand: isCamera && (ai || item.imageUrl)
+          ? {
+              confidence: `置信度：${ai?.confidence ?? 0}`,
+              observe: periodLabel
+                ? `监测到${periodLabel}的食物摄入，图像识别为${ai?.foodType || '未知'}`
+                : `监测到食物摄入，图像识别为${ai?.foodType || '未知'}`,
+              riskA: `推测就餐摄入约${cameraValue}ml`,
+              riskB,
+              sync: `数据同步：${item.ago || item.timeAgo || '刚刚'}`,
+            }
+          : undefined,
+      }
+    }),
     [timeline]
   )
 
@@ -94,9 +161,9 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline }) {
       if (activeFilter === 'all') return true
       if (activeFilter === 'intake') return item.kind === 'intake'
       if (activeFilter === 'output') return item.kind === 'output'
-      if (activeFilter === 'source:intake') return item.source === 'intake'
+      if (activeFilter === 'source:intake') return item.source === 'intake' || item.source === 'water_dispenser'
       if (activeFilter === 'source:camera') return item.source === 'camera'
-      if (activeFilter === 'source:output') return item.source === 'output'
+      if (activeFilter === 'source:output') return item.source === 'output' || item.source === 'urinal'
       return true
     })
   }, [timelineItems, activeFilter])
@@ -251,7 +318,7 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline }) {
                 const miniIcon =
                   item.source === 'camera'
                     ? imgIconCamera
-                    : item.source === 'output'
+                    : (item.source === 'output' || item.source === 'urinal')
                       ? imgIconOutput
                       : item.source === 'manual'
                         ? imgIconPencil
@@ -309,7 +376,7 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline }) {
                             >
                               <div className="fap-observe-left">
                                 <div className="fap-observe-thumb">
-                                  <img src={imgFoodThumb} alt="" />
+                                  <img src={item.imageUrl || imgFoodThumb} alt="" />
                                 </div>
                                 <div className="fap-observe-badge">{item.expand.confidence}</div>
                               </div>
@@ -328,7 +395,7 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline }) {
                                   <div className="fap-risk-text">
                                     <div className="fap-risk-h">风险推断</div>
                                     <div className="fap-risk-p">{item.expand.riskA}</div>
-                                    <div className="fap-risk-p">{item.expand.riskB}</div>
+                                    <div className="fap-risk-p fap-risk-p--clamp">{item.expand.riskB}</div>
                                   </div>
                                 </div>
 

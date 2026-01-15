@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { devLog } from './utils/devLog'
 import { io } from 'socket.io-client'
 import './MainApp.css'
@@ -14,6 +14,11 @@ import FamilyPlaceholderPage from './FamilyPlaceholderPage'
 import FamilyKnowledgePage from './FamilyKnowledgePage'
 import FamilyAnalysisPage from './FamilyAnalysisPage'
 import FamilyHomePage from './FamilyHomePage'
+
+// 后端 API 地址（userver.py）- 从环境变量读取
+const USERVER_API_URL = import.meta.env.VITE_USERVER_API_URL || ''
+const USERVER_ENABLED = !!USERVER_API_URL
+const USERVER_DEBUG = ['true', '1', 'yes', 'on'].includes(String(import.meta.env.VITE_USERVER_DEBUG || '').toLowerCase())
 
 // 患者头像资源（使用本地资源）
 const patientAvatars = [
@@ -54,11 +59,11 @@ function MainApp() {
   
   // 生成默认 timeline 的函数（每次调用返回新数组，避免共享引用）
   const createDefaultTimeline = () => [
-    { id: 'drink-1', kind: 'intake', source: 'intake', time: '19:45', sourceLabel: '饮水机', title: '喝了一杯白水', ago: '25分钟前', valueText: '+ 200ml', valueMl: 200 },
-    { id: 'lunch-1', kind: 'intake', source: 'camera', time: '13:25', sourceLabel: '午餐·拍照上传', title: '一碗粥 + 小菜', ago: '6小时35分钟前', valueText: '+ 180ml', valueMl: 180 },
-    { id: 'pee-1', kind: 'output', source: 'output', time: '11:05', sourceLabel: '智能尿壶', title: '排尿 · 颜色淡黄', ago: '8小时55分钟前', valueText: '- 210ml', valueMl: 210 },
-    { id: 'soup-1', kind: 'intake', source: 'camera', time: '9:00', sourceLabel: '拍照上传', title: '一碗汤', ago: '11小时前', valueText: '+ 150ml', valueMl: 150 },
-    { id: 'pee-2', kind: 'output', source: 'output', time: '8:05', sourceLabel: '智能尿壶', title: '排尿 · 颜色正常', ago: '11小时55分钟前', valueText: '- 160ml', valueMl: 160 },
+    { id: 'drink-1', kind: 'intake', source: 'water_dispenser', time: '19:45', title: '喝了一杯白水', ago: '25分钟前', valueText: '+ 200ml', valueMl: 200 },
+    { id: 'lunch-1', kind: 'intake', source: 'camera', time: '13:25', title: '一碗粥 + 小菜', ago: '6小时35分钟前', valueText: '+ 180ml', valueMl: 180 },
+    { id: 'pee-1', kind: 'output', source: 'urinal', time: '11:05', title: '排尿 · 颜色淡黄', ago: '8小时55分钟前', valueText: '- 210ml', valueMl: 210 },
+    { id: 'soup-1', kind: 'intake', source: 'camera', time: '9:00', title: '一碗汤', ago: '11小时前', valueText: '+ 150ml', valueMl: 150 },
+    { id: 'pee-2', kind: 'output', source: 'urinal', time: '8:05', title: '排尿 · 颜色正常', ago: '11小时55分钟前', valueText: '- 160ml', valueMl: 160 },
   ]
 
   // 家属端专用的timeline数据
@@ -127,6 +132,76 @@ function MainApp() {
         devLog('%c✅ 患者信息已更新:', 'color: #10b981; font-weight: bold;', name)
       } else {
         // 不存在，添加新患者
+        // 初始假数据：用于展示，后端数据会追加到这些之后
+        const now = new Date()
+        const calcAgo = (ts) => {
+          const d = safeParseDate(ts)
+          if (!d) return '刚刚'
+          const diffMs = now.getTime() - d.getTime()
+          if (diffMs <= 0) return '刚刚'
+          const min = Math.floor(diffMs / 60000)
+          if (min < 60) return `${min}分钟前`
+          const h = Math.floor(min / 60)
+          return `${h}小时前`
+        }
+        const initialTimeline = [
+          {
+            id: 'demo-drink-1',
+            patientId: patientId,
+            kind: 'intake',
+            source: 'water_dispenser',
+            time: '08:15',
+            timestamp: new Date().toISOString().split('T')[0] + 'T08:15:00',
+            title: '喝了一杯温水',
+            valueMl: 200,
+            valueText: '+ 200ml',
+            ago: calcAgo(new Date().toISOString().split('T')[0] + 'T08:15:00'),
+          },
+          {
+            id: 'demo-meal-1',
+            patientId: patientId,
+            kind: 'intake',
+            source: 'camera',
+            time: '08:30',
+            timestamp: new Date().toISOString().split('T')[0] + 'T08:30:00',
+            title: '一碗粥 + 鸡蛋',
+            valueMl: 150,
+            valueText: '+ 150ml',
+            ago: calcAgo(new Date().toISOString().split('T')[0] + 'T08:30:00'),
+            imageUrl: '/figma/food-demo.png',
+            aiRecognition: {
+              foodType: '白粥 + 水煮蛋',
+              estimatedWater: 150,
+              confidence: 82,
+              hasRisk: false,
+              riskFactors: [],
+              // 展开信息用字段
+            },
+          },
+          {
+            id: 'demo-urine-1',
+            patientId: patientId,
+            kind: 'output',
+            source: 'urinal',
+            time: '08:50',
+            timestamp: new Date().toISOString().split('T')[0] + 'T08:50:00',
+            title: '排尿 · 颜色淡黄',
+            valueMl: 180,
+            valueText: '- 180ml',
+            ago: calcAgo(new Date().toISOString().split('T')[0] + 'T08:50:00'),
+            urineColor: '淡黄',
+            urineSpecificGravity: 1.015,
+          },
+        ]
+        
+        // 计算初始摄入/排出量
+        const initialInMl = initialTimeline
+          .filter(t => t.kind === 'intake')
+          .reduce((sum, t) => sum + (t.valueMl || 0), 0) // 200 + 150 = 350
+        const initialOutMl = initialTimeline
+          .filter(t => t.kind === 'output')
+          .reduce((sum, t) => sum + (t.valueMl || 0), 0) // 180
+        
         const newPatient = {
           id: patientId,
           name: name,
@@ -136,21 +211,21 @@ function MainApp() {
           metaFull: `${meta} 新建档`,
           gfrStage: gfrStage,
           age: newPatientData.age,
-          // 新患者无摄入/排出数据
+          // 初始摄入/排出数据（来自假数据）
           inPercent: 50,
           outPercent: 50,
-          inMl: 0,
-          outMl: 0,
+          inMl: initialInMl,
+          outMl: initialOutMl,
           inMlMax: 1000,
           outMlMax: 1000,
           avatar: getRandomAvatar(),
           status: isCKD && gfrStage ? getInitialStatus(gfrStage) : 'normal',
-          // 新患者无尿检数据
+          // 初始尿检数据
           urineOsmolality: null,
-          urineSpecificGravity: null,
-          urinationCount: 0,
-          // 新患者无日志
-          timeline: []
+          urineSpecificGravity: 1.015,
+          urinationCount: 1,
+          // 初始时间线（假数据，后端数据会追加）
+          timeline: initialTimeline
         }
         
         setPatients(prev => [...prev, newPatient])
@@ -224,7 +299,6 @@ function MainApp() {
                   kind: kind === 'intake' ? 'intake' : 'output',
                   source: data?.source || 'device',
                   time: time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                  sourceLabel: data?.sourceLabel || '设备',
                   title: data?.title || (kind === 'intake' ? '设备上报 · 饮水' : '设备上报 · 出量'),
                   valueMl: Number(data?.valueMl || data?.inMl || data?.outMl || 0),
                 }
@@ -247,11 +321,20 @@ function MainApp() {
                 kind: kind === 'intake' ? 'intake' : 'output',
                 source: data?.source || 'device',
                 time: time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                sourceLabel: data?.sourceLabel || '设备',
                 title: data?.title || (kind === 'intake' ? '设备上报 · 饮水' : '设备上报 · 出量'),
                 valueMl: Number(data?.valueMl || data?.inMl || data?.outMl || 0),
               }
               setFamilyTimeline(prev => [entry, ...prev])
+
+              // 同步写入 patients[current_patient].timeline，保证家属端与护工端共享同一数据源
+              setPatients(prev => prev.map(p => {
+                if (String(p.id) === 'current_patient') {
+                  const next = { ...p }
+                  next.timeline = [entry, ...(next.timeline || [])]
+                  return next
+                }
+                return p
+              }))
             }
             // 也可更新本地患者档案（如果存在 current_patient）
             setPatients(prev => prev.map(p => {
@@ -279,6 +362,335 @@ function MainApp() {
     return () => {
       if (socket && socket.disconnect) socket.disconnect()
     }
+  }, [appRole, setPatients, setFamilyTimeline])
+
+  // ========== userver.py 硬件数据轮询 ==========
+  // 用于记录上一次处理的数据时间戳，避免重复处理
+  const lastProcessedTimestampRef = useRef(null)
+  // 用于存储当天汇总数据
+  const [dailyStats, setDailyStats] = useState(null)
+  // 用于存储 AI 分析结果
+  const [latestAiAnalysis, setLatestAiAnalysis] = useState(null)
+  
+  // 辅助函数：从字符串中提取数值（如 "1.015 (正常)" → 1.015）
+  const extractNumber = (str) => {
+    if (typeof str === 'number') return str
+    if (typeof str !== 'string') return null
+    const match = str.match(/([\d.]+)/)
+    return match ? parseFloat(match[1]) : null
+  }
+
+  const safeParseDate = (value) => {
+    if (!value) return null
+    if (value instanceof Date) return isNaN(value.getTime()) ? null : value
+    if (typeof value === 'number') {
+      const d = new Date(value)
+      return isNaN(d.getTime()) ? null : d
+    }
+    if (typeof value === 'string') {
+      const normalized = value
+        .replace(' ', 'T')
+        .replace(/\.(\d{3})\d+(Z)?$/, '.$1$2')
+      const d = new Date(normalized)
+      if (!isNaN(d.getTime())) return d
+      // 兼容仅有 HH:mm / HH:mm:ss 的情况
+      const m = value.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/)
+      if (m) {
+        const now = new Date()
+        const hh = Number(m[1])
+        const mm = Number(m[2])
+        const ss = Number(m[3] || 0)
+        const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, ss)
+        return isNaN(d2.getTime()) ? null : d2
+      }
+    }
+    return null
+  }
+
+  const formatHHmm = (date) => {
+    if (!date) return ''
+    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  const formatAgo = (date) => {
+    if (!date) return ''
+    const diffMs = Date.now() - date.getTime()
+    if (diffMs < 0) return '刚刚'
+    const min = Math.floor(diffMs / 60000)
+    if (min <= 0) return '刚刚'
+    if (min < 60) return `${min}分钟前`
+    const h = Math.floor(min / 60)
+    if (h < 24) return `${h}小时前`
+    const d = Math.floor(h / 24)
+    return `${d}天前`
+  }
+  
+  // 辅助函数：将后端 risk_level 映射到前端 PatientStatus
+  const mapRiskToStatus = (riskLevel, currentStatus) => {
+    if (riskLevel === 'high') return 'emergency'
+    if (riskLevel === 'medium') return 'risk'
+    return currentStatus || 'normal'
+  }
+  
+  useEffect(() => {
+    if (!USERVER_ENABLED) {
+      devLog('[MainApp] userver 未配置，跳过硬件数据轮询')
+      return
+    }
+    
+    devLog('[MainApp] 启动 userver 硬件数据轮询:', USERVER_API_URL)
+    
+    // 获取最新数据并更新患者状态
+    const fetchAndUpdateData = async () => {
+      try {
+        const readJson = async (res, label) => {
+          if (!res) return null
+          const contentType = res.headers?.get?.('content-type') || ''
+          const text = await res.text()
+          if (!contentType.toLowerCase().includes('application/json')) {
+            console.warn(`[userver] ${label} 非 JSON 响应`, res.status, text.slice(0, 200))
+            return null
+          }
+          try {
+            const parsed = JSON.parse(text)
+            if (USERVER_DEBUG) {
+              console.log(`[userver] ${label} raw json`, parsed)
+            }
+            return parsed
+          } catch (e) {
+            console.warn(`[userver] ${label} JSON 解析失败`, res.status, text.slice(0, 200))
+            return null
+          }
+        }
+
+        // 并行获取最新数据和每日统计
+        const [latestRes, dailyRes, aiRes] = await Promise.all([
+          fetch(`${USERVER_API_URL}/data/latest`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'ngrok-skip-browser-warning': '1',
+            },
+            signal: AbortSignal.timeout(5000),
+          }).catch(() => null),
+          fetch(`${USERVER_API_URL}/volume/daily`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'ngrok-skip-browser-warning': '1',
+            },
+            signal: AbortSignal.timeout(5000),
+          }).catch(() => null),
+          fetch(`${USERVER_API_URL}/ai/latest`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'ngrok-skip-browser-warning': '1',
+            },
+            signal: AbortSignal.timeout(5000),
+          }).catch(() => null),
+        ])
+        
+        // 处理每日统计数据 → 对应 PatientDashboard 的 output 部分
+        if (dailyRes && dailyRes.ok) {
+          const dailyJson = await readJson(dailyRes, 'volume/daily')
+          if (dailyJson && dailyJson.success && dailyJson.daily_stats) {
+            const stats = dailyJson.daily_stats
+            setDailyStats({
+              // 当天汇总级别
+              totalOutput: stats.total_volume || 0,           // total_volume → totalOutput
+              urinationCount: stats.event_count || 0,         // event_count → urinationCount
+              averageVolume: stats.average_volume || 0,       // average_volume
+              frequencyHours: stats.frequency_hours || 0,     // frequency_hours（平均间隔）
+              volumePercentage: stats.volume_percentage || 0, // 完成度百分比
+              goalMl: stats.goal_ml || 1500,                  // 目标尿量
+            })
+
+            if (USERVER_DEBUG) {
+              console.log('[userver] mapped dailyStats', {
+                totalOutput: stats.total_volume || 0,
+                urinationCount: stats.event_count || 0,
+                averageVolume: stats.average_volume || 0,
+                frequencyHours: stats.frequency_hours || 0,
+                volumePercentage: stats.volume_percentage || 0,
+                goalMl: stats.goal_ml || 1500,
+              })
+            }
+          }
+        }
+        
+        // 处理 AI 分析结果
+        if (aiRes && aiRes.ok) {
+          const aiJson = await readJson(aiRes, 'ai/latest')
+          if (aiJson && aiJson.success && aiJson.ai_analysis) {
+            setLatestAiAnalysis({
+              summary: aiJson.ai_analysis.summary || '',
+              text: aiJson.ai_analysis.text || '',
+              formattedText: aiJson.ai_analysis.formatted_text || '',
+              timestamp: aiJson.ai_analysis.timestamp,
+            })
+
+            if (USERVER_DEBUG) {
+              console.log('[userver] mapped latestAiAnalysis', {
+                summary: aiJson.ai_analysis.summary || '',
+                timestamp: aiJson.ai_analysis.timestamp,
+              })
+            }
+          }
+        }
+        
+        // 处理最新数据
+        if (!latestRes || !latestRes.ok) {
+          if (latestRes && latestRes.status !== 404) {
+            console.warn('[userver] 请求失败:', latestRes.status)
+          }
+          return
+        }
+        
+        const json = await readJson(latestRes, 'data/latest')
+        if (!json || !json.success || !json.data) return
+        
+        const data = json.data
+        const timestamp = data.timestamp
+        
+        // 避免重复处理同一条数据
+        if (timestamp === lastProcessedTimestampRef.current) return
+        lastProcessedTimestampRef.current = timestamp
+        
+        devLog('[userver] 收到新数据:', timestamp)
+        
+        // ========== 提取后端数据 ==========
+        const volumeData = data.volume_data || {}
+        const parsedData = data.parsed_data || {}
+        const analysis = data.analysis || {}
+        const volumeAnalysis = analysis.volume_analysis || {}
+        const basicAnalysis = analysis.basic_analysis || {}
+        const colorAnalysis = parsedData.color_analysis || basicAnalysis.color_analysis || {}
+        
+        // 排尿事件级别数据
+        const eventData = volumeData.event || {}
+        const eventId = eventData.event_id || `hw-${Date.now()}`
+        const startTime = eventData.start_time || timestamp
+        const endTime = eventData.end_time || timestamp
+        const totalVolume = eventData.total_volume || volumeData.current_volume || volumeAnalysis.current_volume || 0
+        const totalVolumeRounded = Math.round(Number(totalVolume) || 0)
+        const duration = eventData.duration || 0
+        const averageFlowRate = eventData.average_flow_rate || 0
+        
+        // 颜色与成分指标
+        const colorName = colorAnalysis.color_name || '未知'
+        const healthStatus = colorAnalysis.health_status || ''
+        const hydrationLevel = colorAnalysis.hydration_level || ''
+        
+        // 尿比重（从字符串提取数值）
+        const specificGravity = extractNumber(parsedData.specific_gravity)
+        // 尿钠
+        const sodium = extractNumber(parsedData.sodium)
+        // 电导率
+        const conductivity = extractNumber(parsedData.conductivity)
+        
+        // 风险状态
+        const riskLevel = basicAnalysis.risk_level || 'low'
+        const keyFindings = basicAnalysis.key_findings || []
+        const volumeAlerts = volumeAnalysis.alerts || []
+
+        if (USERVER_DEBUG) {
+          console.groupCollapsed(`[userver] mapped event ${eventId}`)
+          console.log({
+            eventId,
+            startTime,
+            endTime,
+            totalVolume,
+            duration,
+            averageFlowRate,
+            colorName,
+            healthStatus,
+            hydrationLevel,
+            specificGravity,
+            conductivity,
+            sodium,
+            riskLevel,
+            keyFindings,
+            volumeAlerts,
+          })
+          console.groupEnd()
+        }
+        
+        // ========== 构建时间线条目（对应 TimelineEntry） ==========
+        const startDate = safeParseDate(startTime) || safeParseDate(timestamp) || new Date()
+        const timelineEntry = {
+          id: eventId,                                    // event_id
+          patientId: 'current_patient',                   // 默认关联当前患者
+          kind: 'output',                                 // TimelineKind: 'output'
+          source: 'urinal',                               // 统一为智能马桶（与前端 icon/filter 约定一致）
+          valueMl: totalVolumeRounded,                    // total_volume → valueMl（显示/计算统一用整数）
+          value: totalVolumeRounded,                      // 兼容字段
+          time: formatHHmm(startDate),
+          timestamp: startDate.toISOString(),
+          ago: formatAgo(startDate),
+          title: `排尿 · 颜色${colorName}`,
+          // 尿壶专有字段
+          urineColor: colorName,                          // color_name → urineColor
+          urineSpecificGravity: specificGravity,          // specific_gravity → urineSpecificGravity
+          urineOsmolality: null,                          // 后端暂无此字段
+          // 额外信息（非 types.ts 定义，但可用于显示）
+          valueText: `- ${totalVolumeRounded}ml`,
+          duration: duration,
+          averageFlowRate: averageFlowRate,
+          healthStatus: healthStatus,
+          hydrationLevel: hydrationLevel,
+          conductivity: conductivity,
+          sodium: sodium,
+        }
+        
+        // ========== 更新患者数据 ==========
+        const updatePatient = (patient) => {
+          return {
+            ...patient,
+            // 排出数据累加
+            outMl: (patient.outMl || 0) + totalVolumeRounded,
+            urinationCount: (patient.urinationCount || 0) + 1,
+            // 尿液指标更新（取最新值）
+            urineSpecificGravity: specificGravity || patient.urineSpecificGravity,
+            // 状态根据风险等级更新
+            status: mapRiskToStatus(riskLevel, patient.status),
+            // 时间线追加
+            timeline: [timelineEntry, ...(patient.timeline || [])],
+          }
+        }
+        
+        // 更新 current_patient（建档的那位患者）
+        // 无论是家属端还是护工端，后端数据都只作用于这一位患者
+        setPatients(prev => prev.map(p => {
+          if (String(p.id) === 'current_patient') {
+            return updatePatient(p)
+          }
+          return p
+        }))
+        
+        // 家属端额外更新 familyTimeline
+        if (appRole === 'family') {
+          setFamilyTimeline(prev => [timelineEntry, ...prev])
+        }
+        
+      } catch (err) {
+        // 静默处理网络错误
+        if (err.name !== 'AbortError') {
+          console.warn('[userver] 轮询错误:', err.message)
+        }
+      }
+    }
+    
+    // 首次获取
+    fetchAndUpdateData()
+    
+    // 每 3 秒轮询一次
+    const timer = setInterval(fetchAndUpdateData, 3000)
+    
+    return () => clearInterval(timer)
   }, [appRole, setPatients, setFamilyTimeline])
 
   // 计算总入量和总出量（护工端）
@@ -370,11 +782,11 @@ function MainApp() {
         {appRole === 'caregiver' ? (
           <>
             {showPatientDetail ? (
-              <PatientDetailPage patientData={selectedPatient} onBack={handleClosePatientDetail} patients={patients} setPatients={setPatients} />
+              <PatientDetailPage patientData={selectedPatient} onBack={handleClosePatientDetail} patients={patients} setPatients={setPatients} aiSummary={latestAiAnalysis?.summary || ''} />
             ) : (
               <>
                 {activeTab === 'home' && <WaterManagement activeTab={activeTab} setActiveTab={setActiveTab} onOpenPatientDetail={handleOpenPatientDetail} patients={patients} setPatients={setPatients} totalInL={totalInL} totalOutL={totalOutL} totalInLMax={totalInLMax} totalOutLMax={totalOutLMax} totalInPercent={totalInPercent} totalOutPercent={totalOutPercent} intakeRatio={intakeRatio} outputRatio={outputRatio} />}
-                {activeTab === 'patient' && <PatientPage activeTab={activeTab} setActiveTab={setActiveTab} onOpenPatientDetail={handleOpenPatientDetail} patients={patients} setPatients={setPatients} />}
+                {activeTab === 'patient' && <PatientPage activeTab={activeTab} setActiveTab={setActiveTab} onOpenPatientDetail={handleOpenPatientDetail} patients={patients} setPatients={setPatients} aiSummary={latestAiAnalysis?.summary || ''} />}
                 {/* 其他页面可以在这里添加 */}
                 {activeTab === 'device' && <DevicePage />}
                 {activeTab === 'settings' && <SettingsPage appRole={appRole} onRoleChange={handleRoleChange} totalInL={totalInL} totalOutL={totalOutL} totalInLMax={totalInLMax} totalOutLMax={totalOutLMax} totalInPercent={totalInPercent} totalOutPercent={totalOutPercent} />}
@@ -383,10 +795,22 @@ function MainApp() {
           </>
         ) : (
           <>
-            {activeTab === 'home' && <FamilyHomePage setActiveTab={setActiveTab} timeline={familyTimeline} setTimeline={setFamilyTimeline} />}
-            {activeTab === 'analysis' && <FamilyAnalysisPage setActiveTab={setActiveTab} timeline={familyTimeline} setTimeline={setFamilyTimeline} />}
-            {activeTab === 'knowledge' && <FamilyKnowledgePage setActiveTab={setActiveTab} />}
-            {activeTab === 'settings' && <FamilySettingsPage appRole={appRole} onRoleChange={handleRoleChange} timeline={familyTimeline} />}
+            {/* 家属端：从 patients 中找到 current_patient，使用其数据 */}
+            {(() => {
+              const currentPatient = patients.find(p => String(p.id) === 'current_patient')
+              const patientTimeline = (currentPatient?.timeline && currentPatient.timeline.length > 0)
+                ? currentPatient.timeline
+                : familyTimeline
+              const patientData = currentPatient || null
+              return (
+                <>
+                  {activeTab === 'home' && <FamilyHomePage setActiveTab={setActiveTab} timeline={patientTimeline} setTimeline={setFamilyTimeline} patientData={patientData} aiSummary={latestAiAnalysis?.summary || ''} />}
+                  {activeTab === 'analysis' && <FamilyAnalysisPage setActiveTab={setActiveTab} timeline={patientTimeline} setTimeline={setFamilyTimeline} patientData={patientData} />}
+                  {activeTab === 'knowledge' && <FamilyKnowledgePage setActiveTab={setActiveTab} />}
+                  {activeTab === 'settings' && <FamilySettingsPage appRole={appRole} onRoleChange={handleRoleChange} timeline={patientTimeline} patientData={patientData} />}
+                </>
+              )
+            })()}
           </>
         )}
       </div>
