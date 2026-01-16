@@ -114,6 +114,7 @@ function FamilyHomePage({ setActiveTab, timeline = [], setTimeline, patientData 
     if (source === 'camera') return '拍照上传'
     if (source === 'urinal') return '智能马桶'
     if (source === 'manual') return '手动'
+    if (source === 'manual_entry') return '智能马桶'
     if (source === 'intake') return '摄入'
     if (source === 'output') return '排出'
     return ''
@@ -158,7 +159,7 @@ function FamilyHomePage({ setActiveTab, timeline = [], setTimeline, patientData 
   const displayTimeline = useMemo(() => {
     return timeline.map((item) => {
       const isCamera = item.source === 'camera'
-      const isUrinal = item.source === 'urinal'
+      const isUrinal = item.source === 'urinal' || item.source === 'manual_entry'
       const timeText = getTimeText(item)
       const periodLabel = isCamera ? getPeriodLabel(item) : ''
       const sourceText = getSourceText(item.source)
@@ -183,7 +184,7 @@ function FamilyHomePage({ setActiveTab, timeline = [], setTimeline, patientData 
         title,
         time: timeDisplay,
         valueText,
-        ago: formatAgo(safeParseDate(item.timestamp) || safeParseDate(item.time)) || item.ago || '刚刚',
+        ago: item.ago || formatAgo(safeParseDate(item.timestamp) || safeParseDate(item.time)) || '刚刚',
       }
     })
   }, [timeline])
@@ -278,11 +279,12 @@ function FamilyHomePage({ setActiveTab, timeline = [], setTimeline, patientData 
             {displayTimeline.map((item) => {
               const miniIcon =
                 item.source === 'camera' ? imgIconCamera 
-                : (item.source === 'output' || item.source === 'urinal') ? imgIconOutput 
+                : (item.source === 'output' || item.source === 'urinal' || item.source === 'manual_entry') ? imgIconOutput 
                 : item.source === 'manual' ? imgIconPencil
                 : imgIconIntake
-              const valueClass = item.kind === 'output' ? 'fh-item-value--output' : 'fh-item-value--intake'
-              const dotClass = item.kind === 'output' ? 'fh-dot--output' : 'fh-dot--intake'
+              const isOutput = item.kind === 'output' || item.source === 'urinal' || item.source === 'manual_entry'
+              const valueClass = isOutput ? 'fh-item-value--output' : 'fh-item-value--intake'
+              const dotClass = isOutput ? 'fh-dot--output' : 'fh-dot--intake'
 
               return (
                 <div key={item.id} className="fh-item">

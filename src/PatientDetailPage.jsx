@@ -408,6 +408,7 @@ function PatientDetailPage({ patientData, onBack, patients, setPatients, aiSumma
     if (source === 'camera') return '拍照上传'
     if (source === 'urinal') return '智能马桶'
     if (source === 'manual') return '手动'
+    if (source === 'manual_entry') return '智能马桶'
     if (source === 'intake') return '摄入'
     if (source === 'output') return '排出'
     return ''
@@ -416,12 +417,12 @@ function PatientDetailPage({ patientData, onBack, patients, setPatients, aiSumma
   const timelineItems = useMemo(
     () => timelineData.map((item) => {
       const isCamera = item.source === 'camera'
-      const isUrinal = item.source === 'urinal'
+      const isUrinal = item.source === 'urinal' || item.source === 'manual_entry'
       const timeText = getTimeText(item)
       const periodLabel = isCamera ? getPeriodLabel(item) : ''
       const sourceText = getSourceText(item.source)
 
-      const agoText = formatAgo(safeParseDate(item.timestamp) || safeParseDate(item.time)) || item.ago || '刚刚'
+      const agoText = item.ago || formatAgo(safeParseDate(item.timestamp) || safeParseDate(item.time)) || '刚刚'
 
       const ai = item.aiRecognition || null
       const cameraValue = ai?.estimatedWater ?? item.valueMl ?? item.value ?? 0
@@ -477,7 +478,7 @@ function PatientDetailPage({ patientData, onBack, patients, setPatients, aiSumma
       if (activeFilter === 'output') return item.kind === 'output'
       if (activeFilter === 'source:intake') return item.source === 'intake' || item.source === 'water_dispenser'
       if (activeFilter === 'source:camera') return item.source === 'camera'
-      if (activeFilter === 'source:output') return item.source === 'output' || item.source === 'urinal'
+      if (activeFilter === 'source:output') return item.source === 'output' || item.source === 'urinal' || item.source === 'manual_entry'
       return true
     })
   }, [timelineItems, activeFilter])
@@ -658,14 +659,15 @@ function PatientDetailPage({ patientData, onBack, patients, setPatients, aiSumma
             {hasTimelineData ? (
               <AnimatePresence initial={false} mode="popLayout">
                 {filteredTimeline.map((item) => {
-                  const dotImg = item.kind === 'output' ? imgDotPurple : imgDotBlue
+                  const isOutput = item.kind === 'output' || item.source === 'urinal' || item.source === 'manual_entry'
+                  const dotImg = isOutput ? imgDotPurple : imgDotBlue
                   // 根据来源选择图标
                   const miniIcon =
                     item.source === 'manual'
                       ? imgPencil
                       : item.source === 'camera'
                         ? imgCamera
-                        : (item.source === 'output' || item.source === 'urinal')
+                        : (item.source === 'output' || item.source === 'urinal' || item.source === 'manual_entry')
                           ? imgApproximateEquals
                           : imgDropHalfBottom
                   

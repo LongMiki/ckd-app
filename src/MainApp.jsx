@@ -68,7 +68,7 @@ function MainApp() {
   
   // 生成默认 timeline 的函数（每次调用返回新数组，避免共享引用）
   const createDefaultTimeline = () => [
-    { id: 'pee-1', kind: 'output', source: 'urinal', time: '11:05', title: '排尿 · 颜色淡黄', ago: '8小时55分钟前', valueText: '- 210ml', valueMl: 210, urineColor: '淡黄' },
+    { id: 'pee-1', kind: 'output', source: 'urinal', time: '09:00', title: '排尿 · 颜色淡黄', ago: '11小时前', valueText: '- 210ml', valueMl: 210, urineColor: '淡黄' },
     { id: 'soup-1', kind: 'intake', source: 'camera', time: '9:00', title: '一碗汤', ago: '11小时前', valueText: '+ 150ml', valueMl: 150, imageUrl: '/figma/food-demo.png', aiRecognition: { foodType: '一碗汤', confidence: 0.90, estimatedWater: 150, hasRisk: false, riskFactors: [] } },
     { id: 'pee-2', kind: 'output', source: 'urinal', time: '8:05', title: '排尿 · 颜色正常', ago: '11小时55分钟前', valueText: '- 160ml', valueMl: 160, urineColor: '正常' },
   ]
@@ -374,6 +374,11 @@ function MainApp() {
   // ========== userver.py 硬件数据轮询 ==========
   // 用于记录上一次处理的数据时间戳，避免重复处理
   const lastProcessedTimestampRef = useRef(null)
+  const lastTimelineSignatureRef = useRef('')
+  const lastDailyStatsSignatureRef = useRef('')
+  const lastAiSummarySignatureRef = useRef('')
+  // 页面加载时间戳：用于过滤掉刷新前的历史数据
+  const pageLoadTimestampRef = useRef(Date.now())
   // 用于存储当天汇总数据（goalMl/intakeLimit 是前端固定值，不用后端数据）
   const [dailyStats, setDailyStats] = useState({
     totalOutput: 0,
@@ -558,7 +563,11 @@ function MainApp() {
         }
         // 更新 AI 分析状态（如果有新数据）
         if (aiSummaryData) {
-          setLatestAiAnalysis({ summary: aiSummaryData })
+          const nextAiSig = String(aiSummaryData)
+          if (lastAiSummarySignatureRef.current !== nextAiSig) {
+            lastAiSummarySignatureRef.current = nextAiSig
+            setLatestAiAnalysis({ summary: aiSummaryData })
+          }
         }
 
         // 从 timeline 数据更新患者状态
@@ -602,9 +611,82 @@ function MainApp() {
               ...item,
               patientId: 'current_patient',
             }))
+
+          const dedupeTimelineItems = (list) => {
+            const windowMs = 30 * 1000
+            const allowSources = new Set(['urinal', 'water_dispenser'])
+            const arr = Array.isArray(list) ? list.slice() : []
+
+            const getTs = (it) => {
+              const d = safeParseDate(it?.timestamp) || safeParseDate(it?.time)
+              const t = d ? d.getTime() : NaN
+              return Number.isFinite(t) ? t : null
+            }
+
+            const makeKey = (it) => {
+              const source = String(it?.source || '')
+              const kind = String(it?.kind || '')
+              const value = Math.round(Number(it?.valueMl ?? it?.value ?? 0))
+              const urineColor = source === 'urinal' ? String(it?.urineColor || '') : ''
+              return `${source}|${kind}|${value}|${urineColor}`
+            }
+
+            // 保留最新一条：按时间倒序扫描，窗口内重复的旧条目丢弃
+            const sorted = arr
+              .map((it) => ({ it, ts: getTs(it) }))
+              .sort((a, b) => {
+                const at = a.ts ?? -Infinity
+                const bt = b.ts ?? -Infinity
+                return bt - at
+              })
+
+            const lastKeptTsByKey = new Map()
+            const out = []
+
+            for (const { it, ts } of sorted) {
+              const source = String(it?.source || '')
+              if (!allowSources.has(source)) {
+                out.push(it)
+                continue
+              }
+
+              // 没有 timestamp/time 的条目不做去重，避免误伤
+              if (ts == null) {
+                out.push(it)
+                continue
+              }
+
+              const key = makeKey(it)
+              const lastTs = lastKeptTsByKey.get(key)
+              if (lastTs != null && Math.abs(lastTs - ts) <= windowMs) {
+                continue
+              }
+              lastKeptTsByKey.set(key, ts)
+              out.push(it)
+            }
+
+            return out.reverse()
+          }
+
+          const dedupedItems = dedupeTimelineItems(items)
           
+          // 过滤掉无效数据：title为"未知"或空、且valueMl为0的条目
+          // 同时过滤掉刷新前的历史数据（只显示页面加载后的新数据）
+          const validItems = dedupedItems.filter(item => {
+            const title = String(item?.title || '').trim()
+            const value = Math.round(Number(item?.valueMl ?? item?.value ?? 0))
+            // 过滤掉: title为"未知"或空且value为0
+            if ((title === '未知' || title === '') && value === 0) return false
+            // 过滤掉刷新前的历史数据：只保留时间戳 >= 页面加载时间的数据
+            const itemDate = safeParseDate(item?.timestamp) || safeParseDate(item?.time)
+            if (itemDate) {
+              const itemTs = itemDate.getTime()
+              if (itemTs < pageLoadTimestampRef.current) return false
+            }
+            return true
+          })
           
-          if (items.length > 0) {
+          if (validItems.length > 0) {
             userverHasRealDataRef.current = true
           }
 
@@ -628,6 +710,26 @@ function MainApp() {
             // 再添加假数据
             mockData.forEach(pushUnique)
             return out
+          }
+
+          const sortTimelineByTimeDesc = (list) => {
+            const arr = Array.isArray(list) ? list.slice() : []
+            return arr
+              .map((it, idx) => {
+                const d = safeParseDate(it?.timestamp) || safeParseDate(it?.time)
+                const ts = d ? d.getTime() : NaN
+                return { it, idx, ts }
+              })
+              .sort((a, b) => {
+                const at = Number.isFinite(a.ts) ? a.ts : -Infinity
+                const bt = Number.isFinite(b.ts) ? b.ts : -Infinity
+                if (at !== bt) return bt - at
+                const aid = String(a.it?.id ?? '')
+                const bid = String(b.it?.id ?? '')
+                if (aid !== bid) return aid.localeCompare(bid)
+                return a.idx - b.idx
+              })
+              .map(x => x.it)
           }
 
           const calcTimelineStats = (entries) => {
@@ -657,7 +759,7 @@ function MainApp() {
             return `${USERVER_API_URL}${url}`
           }
           
-          const formattedTimeline = items.map(item => ({
+          const formattedTimeline = validItems.map(item => ({
             ...item,
             valueText: item.kind === 'output' 
               ? `- ${Math.round(item.valueMl || item.value || 0)}ml`
@@ -667,7 +769,7 @@ function MainApp() {
             imageUrl: resolveImageUrl(item.imageUrl),
           }))
 
-          const latestUrineEntry = items.reduce((latest, cur) => {
+          const latestUrineEntry = validItems.reduce((latest, cur) => {
             if (!cur || cur.source !== 'urinal') return latest
             const curTs = cur.timestamp ? Date.parse(cur.timestamp) : NaN
             const latestTs = latest && latest.timestamp ? Date.parse(latest.timestamp) : NaN
@@ -675,6 +777,19 @@ function MainApp() {
             if (!latest || !Number.isFinite(latestTs)) return cur
             return curTs >= latestTs ? cur : latest
           }, null)
+
+          const mergedTimeline = sortTimelineByTimeDesc(mergeTimeline(formattedTimeline))
+          const mergedStats = calcTimelineStats(mergedTimeline)
+
+          const nextTimelineSig = mergedTimeline
+            .map((it) => `${String(it?.id ?? '')}|${String(it?.timestamp ?? it?.time ?? '')}|${String(it?.source ?? '')}|${String(it?.kind ?? '')}|${Math.round(Number(it?.valueMl ?? it?.value ?? 0))}`)
+            .join('~')
+          const nextStatsSig = `${Math.round(mergedStats.totalIntake)}|${Math.round(mergedStats.totalOutput)}|${mergedStats.urinationCount}`
+
+          const timelineChanged = lastTimelineSignatureRef.current !== nextTimelineSig
+          const statsChanged = lastDailyStatsSignatureRef.current !== nextStatsSig
+          lastTimelineSignatureRef.current = nextTimelineSig
+          lastDailyStatsSignatureRef.current = nextStatsSig
           
           // 更新 current_patient 的 timeline
           setPatients(prev => {
@@ -701,12 +816,29 @@ function MainApp() {
               timeline: createDefaultTimeline(), // 使用假数据作为初始 timeline
             }
 
-            const mergedTimeline = mergeTimeline(formattedTimeline)
+            const nextCurrent = {
+              ...base,
+              outMl: Math.round(mergedStats.totalOutput),
+              inMl: Math.round(mergedStats.totalIntake),
+              urinationCount: mergedStats.urinationCount,
+              urineOsmolality: latestUrineEntry?.urineOsmolality ?? base.urineOsmolality,
+              urineSpecificGravity: latestUrineEntry?.urineSpecificGravity ?? base.urineSpecificGravity,
+              timeline: mergedTimeline.length > 0 ? mergedTimeline : base.timeline,
+            }
 
-            // 统计：用“合并后的时间线（后端 + 假数据）”一起计算
-            const mergedStats = calcTimelineStats(mergedTimeline)
+            if (!timelineChanged && !statsChanged) {
+              return prev
+            }
 
-            // 更新每日统计（从合并后的 timeline 计算）
+            // 方案 B：不清空其他 mock 患者，仅更新/追加 current_patient
+            if (existing) {
+              return prev.map(p => (String(p.id) === 'current_patient' ? nextCurrent : p))
+            }
+            return [...prev, nextCurrent]
+          })
+
+          // 更新每日统计（从合并后的 timeline 计算）
+          if (statsChanged) {
             setDailyStats(prev => ({
               ...prev,
               totalOutput: Math.round(mergedStats.totalOutput),
@@ -716,28 +848,12 @@ function MainApp() {
                 ? Math.round(mergedStats.totalOutput / mergedStats.urinationCount)
                 : 0,
             }))
+          }
 
-            const nextCurrent = {
-              ...base,
-              outMl: Math.round(mergedStats.totalOutput),
-              inMl: Math.round(mergedStats.totalIntake),
-              urinationCount: mergedStats.urinationCount,
-              urineOsmolality: latestUrineEntry?.urineOsmolality ?? base.urineOsmolality,
-              urineSpecificGravity: latestUrineEntry?.urineSpecificGravity ?? base.urineSpecificGravity,
-              // 展示：真实在前 + 保留假数据（去重）
-              timeline: mergedTimeline.length > 0 ? mergedTimeline : base.timeline,
-            }
-
-            // 方案 B：不清空其他 mock 患者，仅更新/追加 current_patient
-            if (existing) {
-              return prev.map(p => (String(p.id) === 'current_patient' ? nextCurrent : p))
-            }
-            return [...prev, nextCurrent]
-          })
           
           // 家属端额外更新 familyTimeline
-          if (appRole === 'family' && formattedTimeline.length > 0) {
-            setFamilyTimeline(prev => mergeTimeline(formattedTimeline, prev))
+          if (appRole === 'family' && timelineChanged) {
+            setFamilyTimeline(mergedTimeline)
           }
 
           if (USERVER_DEBUG) {

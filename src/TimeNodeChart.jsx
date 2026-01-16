@@ -74,7 +74,7 @@ function TimeNodeChart({
     // 兼容仅有 source 的情况
     if (entry?.source === 'intake' || entry?.source === 'output') return entry.source
     if (entry?.source === 'water_dispenser' || entry?.source === 'camera') return 'intake'
-    if (entry?.source === 'urinal') return 'output'
+    if (entry?.source === 'urinal' || entry?.source === 'manual_entry') return 'output'
     // 兜底：根据标题/文案判断
     const title = String(entry?.title || '')
     const valueText = String(entry?.valueText || '')
