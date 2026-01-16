@@ -112,7 +112,7 @@ function FamilyHomePage({ setActiveTab, timeline = [], setTimeline, patientData 
   const getSourceText = (source) => {
     if (source === 'water_dispenser') return '饮水机'
     if (source === 'camera') return '拍照上传'
-    if (source === 'urinal') return '尿壶'
+    if (source === 'urinal') return '智能马桶'
     if (source === 'manual') return '手动'
     if (source === 'intake') return '摄入'
     if (source === 'output') return '排出'
@@ -170,8 +170,8 @@ function FamilyHomePage({ setActiveTab, timeline = [], setTimeline, patientData 
 
       const title = isCamera
         ? (ai?.foodType || item.title)
-        : (isUrinal && item.urineColor
-          ? `排尿 · ${item.urineColor}`
+        : (isUrinal
+          ? (item.urineColor ? `排尿 · ${item.urineColor}` : '排尿')
           : item.title)
 
       const timeDisplay = isCamera
@@ -183,7 +183,7 @@ function FamilyHomePage({ setActiveTab, timeline = [], setTimeline, patientData 
         title,
         time: timeDisplay,
         valueText,
-        ago: item.ago || item.timeAgo || formatAgo(safeParseDate(item.timestamp)) || '刚刚',
+        ago: formatAgo(safeParseDate(item.timestamp) || safeParseDate(item.time)) || item.ago || '刚刚',
       }
     })
   }, [timeline])

@@ -6,6 +6,17 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    proxy: {
+      '/userver': {
+        target: 'https://symmetrical-progravid-benito.ngrok-free.dev',
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          'ngrok-skip-browser-warning': '1',
+        },
+        rewrite: (path) => path.replace(/^\/userver/, ''),
+      },
+    },
     allowedHosts: [
       'd64a6676525bef0b-175-13-211-118.serveousercontent.com'
     ]

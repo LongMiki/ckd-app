@@ -1,0 +1,107 @@
+{
+  "success": true,
+  "timeline_entries": [
+    {
+      "id": "timeline_1768547342_df15",
+      "patientId": "patient_001",
+      "kind": "output",
+      "source": "urinal",
+      "valueMl": 280.0,
+      "time": "15:09",
+      "timestamp": "2026-01-16T15:09:02.271380",
+      "timeAgo": "刚刚",
+      "title": "排尿 · 深黄色",
+      "urineColor": "深黄色",
+      "urineOsmolality": 1036,
+      "urineSpecificGravity": 1.015
+    },
+    {
+      "id": "timeline_1768543200_a1b2",
+      "patientId": "patient_001",
+      "kind": "intake",
+      "source": "water_dispenser",
+      "valueMl": 200,
+      "time": "14:00",
+      "timestamp": "2026-01-16T14:00:00.000000",
+      "timeAgo": "1小时前",
+      "title": "喝了200ml白水"
+    },
+    {
+      "id": "timeline_1768539600_c3d4",
+      "patientId": "patient_001",
+      "kind": "intake",
+      "source": "camera",
+      "valueMl": 180,
+      "time": "13:00",
+      "timestamp": "2026-01-16T13:00:00.000000",
+      "timeAgo": "2小时前",
+      "title": "一碗粥 + 小菜",
+      "imageUrl": "/figma/food-demo.png",
+      "aiRecognition": {
+        "foodType": "一碗粥 + 小菜",
+        "confidence": 0.85,
+        "estimatedWater": 180,
+        "hasRisk": false,
+        "riskFactors": []
+      }
+    },
+    {
+      "id": "timeline_1768536000_e5f6",
+      "patientId": "patient_001",
+      "kind": "output",
+      "source": "urinal",
+      "valueMl": 320.0,
+      "time": "12:00",
+      "timestamp": "2026-01-16T12:00:00.000000",
+      "timeAgo": "3小时前",
+      "title": "排尿 · 淡黄色",
+      "urineColor": "淡黄色",
+      "urineOsmolality": 650,
+      "urineSpecificGravity": 1.012
+    },
+    {
+      "id": "timeline_1768532400_g7h8",
+      "patientId": "patient_001",
+      "kind": "intake",
+      "source": "camera",
+      "valueMl": 250,
+      "time": "11:00",
+      "timestamp": "2026-01-16T11:00:00.000000",
+      "timeAgo": "4小时前",
+      "title": "一碗汤 + 米饭",
+      "imageUrl": "/figma/food-demo.png",
+      "aiRecognition": {
+        "foodType": "一碗汤 + 米饭",
+        "confidence": 0.92,
+        "estimatedWater": 250,
+        "hasRisk": true,
+        "riskFactors": ["高钠食物"]
+      }
+    },
+    {
+      "id": "timeline_1768528800_i9j0",
+      "patientId": "patient_001",
+      "kind": "intake",
+      "source": "water_dispenser",
+      "valueMl": 150,
+      "time": "10:00",
+      "timestamp": "2026-01-16T10:00:00.000000",
+      "timeAgo": "5小时前",
+      "title": "喝了150ml白水"
+    },
+    {
+      "id": "timeline_1768525200_k1l2",
+      "patientId": "patient_001",
+      "kind": "output",
+      "source": "urinal",
+      "valueMl": 180.0,
+      "time": "09:00",
+      "timestamp": "2026-01-16T09:00:00.000000",
+      "timeAgo": "6小时前",
+      "title": "排尿 · 黄色",
+      "urineColor": "黄色",
+      "urineOsmolality": 820,
+      "urineSpecificGravity": 1.018
+    }
+  ]
+}

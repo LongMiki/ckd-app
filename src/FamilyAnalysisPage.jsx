@@ -79,6 +79,19 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline, patientD
     return `${hh}:${mm}`
   }
 
+  const formatAgo = (date) => {
+    if (!date) return ''
+    const diffMs = Date.now() - date.getTime()
+    if (diffMs < 0) return '刚刚'
+    const min = Math.floor(diffMs / 60000)
+    if (min <= 0) return '刚刚'
+    if (min < 60) return `${min}分钟前`
+    const h = Math.floor(min / 60)
+    if (h < 24) return `${h}小时前`
+    const d = Math.floor(h / 24)
+    return `${d}天前`
+  }
+
   const getPeriodLabel = (item) => {
     const d = safeParseDate(item?.timestamp) || safeParseDate(item?.time)
     if (!d) return ''
@@ -93,7 +106,7 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline, patientD
   const getSourceText = (source) => {
     if (source === 'water_dispenser') return '饮水机'
     if (source === 'camera') return '拍照上传'
-    if (source === 'urinal') return '尿壶'
+    if (source === 'urinal') return '智能马桶'
     if (source === 'manual') return '手动'
     if (source === 'intake') return '摄入'
     if (source === 'output') return '排出'
@@ -109,6 +122,8 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline, patientD
       const periodLabel = isCamera ? getPeriodLabel(item) : ''
       const sourceText = getSourceText(item.source)
 
+      const agoText = formatAgo(safeParseDate(item.timestamp) || safeParseDate(item.time)) || item.ago || '刚刚'
+
       const ai = item.aiRecognition || null
       const cameraValue = ai?.estimatedWater ?? item.valueMl ?? item.value ?? 0
       const valueRaw = isCamera ? cameraValue : (item.valueMl ?? item.value ?? 0)
@@ -116,8 +131,8 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline, patientD
 
       const title = isCamera
         ? (ai?.foodType || item.title)
-        : (isUrinal && item.urineColor
-          ? `排尿 · ${item.urineColor}`
+        : (isUrinal
+          ? (item.urineColor ? `排尿 · ${item.urineColor}` : '排尿')
           : item.title)
 
       const timeDisplay = isCamera
@@ -138,7 +153,7 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline, patientD
         title,
         time: timeDisplay,
         valueText,
-        ago: item.ago || item.timeAgo || '刚刚',
+        ago: agoText,
         expandable: isCamera && (ai || item.imageUrl),
         expand: isCamera && (ai || item.imageUrl)
           ? {
@@ -148,7 +163,7 @@ function FamilyAnalysisPage({ setActiveTab, timeline = [], setTimeline, patientD
                 : `监测到食物摄入，图像识别为${ai?.foodType || '未知'}`,
               riskA: `推测就餐摄入约${cameraValue}ml`,
               riskB,
-              sync: `数据同步：${item.ago || item.timeAgo || '刚刚'}`,
+              sync: `数据同步：${agoText}`,
             }
           : undefined,
       }

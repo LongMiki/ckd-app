@@ -404,8 +404,9 @@
   font-weight: 700;
   font-size: 16px;
   line-height: normal;
-  width: 73px;
+  min-width: 73px;
   text-align: right;
+  white-space: nowrap;
 }
 
 .fh-item-value--intake {

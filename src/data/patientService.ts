@@ -22,18 +22,29 @@ import { getCurrentTimePeriod } from './thresholds'
 
 // ========== 配置开关 ==========
 // 改为 false 即可切换到真实 API
-export const USE_MOCK = true
+export const USE_MOCK = (() => {
+  const raw = import.meta.env.VITE_PATIENT_USE_MOCK ?? import.meta.env.VITE_USE_MOCK
+  if (raw == null || raw === '') return true
+  return ['true', '1', 'yes', 'on'].includes(String(raw).toLowerCase())
+})()
 
 // API 基础路径
-const API_BASE = '/api/v1'
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+
+function buildApiUrl(endpoint: string) {
+  const base = String(API_BASE).replace(/\/+$/, '')
+  return `${base}${endpoint}`
+}
 
 // ========== 网络请求封装 ==========
 
 async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
   try {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    const response = await fetch(buildApiUrl(endpoint), {
       headers: {
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': '1',
         // 可添加 Authorization header
       },
       ...options,
