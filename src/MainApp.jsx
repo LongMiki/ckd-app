@@ -672,11 +672,18 @@ function MainApp() {
           
           // 过滤掉无效数据：title为"未知"或空、且valueMl为0的条目
           // 同时过滤掉刷新前的历史数据（只显示页面加载后的新数据）
+          // 同时过滤掉异常数据（如排尿量超过10000ml或小于5ml的误差数据）
+          const MAX_VALID_ML = 10000 // 单次摄入/排出上限，超过视为异常数据
+          const MIN_VALID_ML = 5     // 单次摄入/排出下限，低于视为误差噪声
           const validItems = dedupedItems.filter(item => {
             const title = String(item?.title || '').trim()
             const value = Math.round(Number(item?.valueMl ?? item?.value ?? 0))
             // 过滤掉: title为"未知"或空且value为0
             if ((title === '未知' || title === '') && value === 0) return false
+            // 过滤掉异常数据：单次摄入/排出超过10000ml视为异常
+            if (value > MAX_VALID_ML) return false
+            // 过滤掉误差噪声：单次摄入/排出小于5ml视为传感器误差
+            if (value < MIN_VALID_ML) return false
             // 过滤掉刷新前的历史数据：只保留时间戳 >= 页面加载时间的数据
             const itemDate = safeParseDate(item?.timestamp) || safeParseDate(item?.time)
             if (itemDate) {
@@ -685,6 +692,55 @@ function MainApp() {
             }
             return true
           })
+          
+          // 对排尿数据进行误差合并：同一分钟内相似数值（差值<10%）的排尿数据只保留最后一条
+          const mergeUrinalNoise = (list) => {
+            const arr = Array.isArray(list) ? list.slice() : []
+            // 按时间排序（旧→新）
+            arr.sort((a, b) => {
+              const ta = safeParseDate(a?.timestamp) || safeParseDate(a?.time)
+              const tb = safeParseDate(b?.timestamp) || safeParseDate(b?.time)
+              return (ta?.getTime() || 0) - (tb?.getTime() || 0)
+            })
+            
+            const out = []
+            let lastUrinal = null
+            let lastUrinalTs = null
+            
+            for (const item of arr) {
+              const isUrinal = item?.source === 'urinal' || item?.source === 'manual_entry'
+              if (!isUrinal) {
+                out.push(item)
+                continue
+              }
+              
+              const itemDate = safeParseDate(item?.timestamp) || safeParseDate(item?.time)
+              const itemTs = itemDate?.getTime() || 0
+              const itemValue = Number(item?.valueMl ?? item?.value ?? 0)
+              
+              if (lastUrinal && lastUrinalTs) {
+                const timeDiff = Math.abs(itemTs - lastUrinalTs)
+                const lastValue = Number(lastUrinal?.valueMl ?? lastUrinal?.value ?? 0)
+                const valueDiff = Math.abs(itemValue - lastValue)
+                const avgValue = (itemValue + lastValue) / 2
+                const diffRatio = avgValue > 0 ? valueDiff / avgValue : 0
+                
+                // 同一分钟内（60秒）且数值差异<20%，视为同一次排尿的多次读数
+                if (timeDiff <= 60000 && diffRatio < 0.2) {
+                  // 用新的替换旧的（保留最后一条）
+                  out.pop()
+                }
+              }
+              
+              out.push(item)
+              lastUrinal = item
+              lastUrinalTs = itemTs
+            }
+            
+            return out
+          }
+          
+          const mergedUrinalItems = mergeUrinalNoise(validItems)
           
           if (validItems.length > 0) {
             userverHasRealDataRef.current = true
@@ -759,7 +815,7 @@ function MainApp() {
             return `${USERVER_API_URL}${url}`
           }
           
-          const formattedTimeline = validItems.map(item => ({
+          const formattedTimeline = mergedUrinalItems.map(item => ({
             ...item,
             valueText: item.kind === 'output' 
               ? `- ${Math.round(item.valueMl || item.value || 0)}ml`
@@ -769,7 +825,7 @@ function MainApp() {
             imageUrl: resolveImageUrl(item.imageUrl),
           }))
 
-          const latestUrineEntry = validItems.reduce((latest, cur) => {
+          const latestUrineEntry = mergedUrinalItems.reduce((latest, cur) => {
             if (!cur || cur.source !== 'urinal') return latest
             const curTs = cur.timestamp ? Date.parse(cur.timestamp) : NaN
             const latestTs = latest && latest.timestamp ? Date.parse(latest.timestamp) : NaN
