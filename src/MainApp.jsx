@@ -672,9 +672,9 @@ function MainApp() {
           
           // 过滤掉无效数据：title为"未知"或空、且valueMl为0的条目
           // 同时过滤掉刷新前的历史数据（只显示页面加载后的新数据）
-          // 同时过滤掉异常数据（如排尿量超过10000ml或小于5ml的误差数据）
+          // 同时过滤掉异常数据（如排尿量超过10000ml或小于20ml的误差数据）
           const MAX_VALID_ML = 10000 // 单次摄入/排出上限，超过视为异常数据
-          const MIN_VALID_ML = 5     // 单次摄入/排出下限，低于视为误差噪声
+          const MIN_VALID_ML = 20    // 单次排尿下限，低于视为误差噪声（用户要求20ml）
           const validItems = dedupedItems.filter(item => {
             const title = String(item?.title || '').trim()
             const value = Math.round(Number(item?.valueMl ?? item?.value ?? 0))
@@ -682,8 +682,9 @@ function MainApp() {
             if ((title === '未知' || title === '') && value === 0) return false
             // 过滤掉异常数据：单次摄入/排出超过10000ml视为异常
             if (value > MAX_VALID_ML) return false
-            // 过滤掉误差噪声：单次摄入/排出小于5ml视为传感器误差
-            if (value < MIN_VALID_ML) return false
+            // 过滤掉误差噪声：单次排尿小于20ml视为传感器误差（仅对排尿数据）
+            const isUrinalItem = item?.source === 'urinal' || item?.source === 'manual_entry'
+            if (isUrinalItem && value < MIN_VALID_ML) return false
             // 过滤掉刷新前的历史数据：只保留时间戳 >= 页面加载时间的数据
             const itemDate = safeParseDate(item?.timestamp) || safeParseDate(item?.time)
             if (itemDate) {
@@ -693,7 +694,8 @@ function MainApp() {
             return true
           })
           
-          // 对排尿数据进行误差合并：同一分钟内相似数值（差值<10%）的排尿数据只保留最后一条
+          // 对排尿数据进行合并：短时间内逐步增长的数据，等稳定后只保留最终值
+          // 逻辑：同一分钟内的连续排尿读数，只保留最后一条（最终稳定值）
           const mergeUrinalNoise = (list) => {
             const arr = Array.isArray(list) ? list.slice() : []
             // 按时间排序（旧→新）
@@ -716,17 +718,13 @@ function MainApp() {
               
               const itemDate = safeParseDate(item?.timestamp) || safeParseDate(item?.time)
               const itemTs = itemDate?.getTime() || 0
-              const itemValue = Number(item?.valueMl ?? item?.value ?? 0)
               
               if (lastUrinal && lastUrinalTs) {
                 const timeDiff = Math.abs(itemTs - lastUrinalTs)
-                const lastValue = Number(lastUrinal?.valueMl ?? lastUrinal?.value ?? 0)
-                const valueDiff = Math.abs(itemValue - lastValue)
-                const avgValue = (itemValue + lastValue) / 2
-                const diffRatio = avgValue > 0 ? valueDiff / avgValue : 0
                 
-                // 同一分钟内（60秒）且数值差异<20%，视为同一次排尿的多次读数
-                if (timeDiff <= 60000 && diffRatio < 0.2) {
+                // 短时间内（10秒）的连续排尿读数，视为同一次排尿的逐步增长
+                // 只保留最后一条（最终稳定值）
+                if (timeDiff <= 10000) {
                   // 用新的替换旧的（保留最后一条）
                   out.pop()
                 }
