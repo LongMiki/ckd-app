@@ -520,6 +520,7 @@ function MainApp() {
           const timelineUrl = `${USERVER_API_URL}/timeline/entries?patientId=${patientId}&limit=50`
           const timelineRes = await fetch(timelineUrl, {
             method: 'GET',
+            headers: { 'ngrok-skip-browser-warning': '1' },
             signal: AbortSignal.timeout(5000),
           }).catch(() => null)
           const timelineParsed = timelineRes && timelineRes.ok
@@ -545,6 +546,7 @@ function MainApp() {
           const aiSummaryUrl = `${USERVER_API_URL}/ai/summary?patientId=${patientId}`
           const aiSummaryRes = await fetch(aiSummaryUrl, {
             method: 'GET',
+            headers: { 'ngrok-skip-browser-warning': '1' },
             signal: AbortSignal.timeout(5000),
           }).catch(() => null)
           if (aiSummaryRes && aiSummaryRes.ok) {
