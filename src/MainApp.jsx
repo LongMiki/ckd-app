@@ -253,20 +253,13 @@ function MainApp() {
   useEffect(() => {
     // SOCKET_URL 优先来自环境变量（生产部署时可设置）。
     // 在本地开发且未提供 VITE_SOCKET_URL 时，跳过 socket 初始化以避免无后端时的 WebSocket 错误噪音。
-    let SOCKET_URL = '';
     const hasEnvSocket = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SOCKET_URL
-    if (hasEnvSocket) {
-      SOCKET_URL = import.meta.env.VITE_SOCKET_URL
-    } else if (typeof window !== 'undefined' && window.location) {
-      SOCKET_URL = window.location.origin
-    } else {
-      SOCKET_URL = 'http://localhost:4000'
-    }
-
-    if (!hasEnvSocket && typeof window !== 'undefined' && window.location && window.location.hostname === 'localhost') {
-      devLog('[MainApp] skipping socket init in local dev (no VITE_SOCKET_URL)')
+    if (!hasEnvSocket) {
+      devLog('[MainApp] skipping socket init (no VITE_SOCKET_URL)')
       return
     }
+
+    const SOCKET_URL = import.meta.env.VITE_SOCKET_URL
 
     let socket
 
