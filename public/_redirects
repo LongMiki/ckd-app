@@ -1,0 +1,2 @@
+# Proxy /userver/* requests to ngrok backend
+/userver/*  https://symmetrical-progravid-benito.ngrok-free.dev/:splat  200
